@@ -1,0 +1,6 @@
+[language]
+name = "python"
+roots = ["pyproject", ".python_version"]
+
+[language_server]
+commands = ["pylsp"]
