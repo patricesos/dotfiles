@@ -43,7 +43,7 @@ alias hyr="hyprctl reload"
 
 # Fastanime
 source ~/.config/fastanime/completions/fastanime.bash
-alias fa="cd ~/Documents/fast-anime/ ; fastanime anilist"
+alias anime="fastanime"
 
 # YouTube Downloader
 alias yt-dlp="yt-dlp -P '~/Videos/YouTube/' -o '%(title)s.%(ext)s'"
@@ -59,7 +59,6 @@ shortcut() {
 }
 
 alias du=ncdu
-alias moi="sh -c "$(curl -fsLS get.chezmoi.io)" -- init --apply patricesos"
 
 eval "$(oh-my-posh init bash --config ~/.config/oh-my-posh/themes/amro.omp.json)"
 #eval "$(oh-my-posh init bash --config ~/.config/oh-my-posh/themes/atomic.omp.json)"
