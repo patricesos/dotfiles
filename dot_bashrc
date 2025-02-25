@@ -43,7 +43,7 @@ alias hyr="hyprctl reload"
 
 # Fastanime
 source ~/.config/fastanime/completions/fastanime.bash
-alias anime="fastanime"
+alias anime="fastanime anilist"
 
 # YouTube Downloader
 alias yt-dlp="yt-dlp -P '~/Videos/YouTube/' -o '%(title)s.%(ext)s'"
