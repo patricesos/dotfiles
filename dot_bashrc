@@ -25,6 +25,7 @@ fi
 unset rc
 
 # My aliases
+
 alias la="ll -a"
 alias sdu='sudo dnf update'
 alias sdi='sudo dnf install'
@@ -92,3 +93,5 @@ alias lazy='NVIM_APPNAME="nvim-lazy" nvim'
 # bun
 export BUN_INSTALL="$HOME/.bun"
 export PATH=$BUN_INSTALL/bin:$PATH
+
+export EDITOR=nvim
