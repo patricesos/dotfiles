@@ -62,23 +62,7 @@ shortcut() {
 alias du=ncdu
 
 eval "$(oh-my-posh init bash --config ~/.config/oh-my-posh/themes/amro.omp.json)"
-#eval "$(oh-my-posh init bash --config ~/.config/oh-my-posh/themes/atomic.omp.json)"
 
-# Load pyenv automatically by appending
-# the following to
-# ~/.bash_profile if it exists, otherwise ~/.profile (for login shells)
-# and ~/.bashrc (for interactive shells) :
-
-export PYENV_ROOT="$HOME/.pyenv"
-[[ -d $PYENV_ROOT/bin ]] && export PATH="$PYENV_ROOT/bin:$PATH"
-eval "$(pyenv init -)"
-
-# Restart your shell for the changes to take effect.
-
-# Load pyenv-virtualenv automatically by adding
-# the following to ~/.bashrc:
-
-eval "$(pyenv virtualenv-init -)"
 eval "$(zoxide init bash)"
 
 # Neovim Configuration
@@ -88,7 +72,7 @@ alias nv-jj='NVIM_APPNAME="nvim-jj" nvim'
 alias lazy='NVIM_APPNAME="nvim-lazy" nvim'
 
 
-. "$HOME/.cargo/env"
+#. "$HOME/.cargo/env"
 
 # bun
 export BUN_INSTALL="$HOME/.bun"
