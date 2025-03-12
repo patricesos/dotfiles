@@ -41,7 +41,7 @@ alias neo="~/apps/neovide.AppImage"
 alias reset-audio="systemctl --user restart pipewire.service"
 alias cls="clear"
 alias hyr="hyprctl reload"
-
+alias venv-activate="source .venv/bin/activate"
 # Fastanime
 source ~/.config/fastanime/completions/fastanime.bash
 alias anime="fastanime anilist"
