@@ -50,7 +50,7 @@ alias anime="fastanime anilist"
 alias yt-dlp="yt-dlp -P '~/Videos/YouTube/' -o '%(title)s.%(ext)s'"
 alias video="yt-dlp -P '~/Videos/YouTube/' -o '%(title)s.%(ext)s' --embed-chapters --write-subs --sub-format 'ass'"
 alias yt-inst="yt-dlp -P '~/Videos/YouTube/' -f 'ba+bv' -o '%(title)s%(tags)s.%(ext)s --cookies-from-browser edge'"
-yt-audio() {
+audio() {
   yt-dlp -P '~/Music/' -f '140' -o '%(title)s.%(ext)s' "$@"
 }
 
