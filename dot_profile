@@ -5,4 +5,4 @@ if [ -d "$HOME/adb-fastboot/platform-tools" ] ; then
 fi
 
 #Gaffer Config
-export PATH=$PATH\:~/apps/gaffer/bin
+export PATH=$PATH\:~/apps/gaffer
