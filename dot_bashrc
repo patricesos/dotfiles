@@ -42,6 +42,10 @@ alias reset-audio="systemctl --user restart pipewire.service"
 alias cls="clear"
 alias hyr="hyprctl reload"
 alias venv-activate="source .venv/bin/activate"
+alias conf-edit="chezmoi edit"
+alias conf-update="chezmoi update"
+
+
 # Fastanime
 source ~/.config/fastanime/completions/fastanime.bash
 alias anime="fastanime anilist"
