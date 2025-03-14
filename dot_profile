@@ -6,3 +6,5 @@ fi
 
 #Gaffer Config
 export PATH=$PATH\:~/apps/gaffer
+
+export PATH=$PATH\:~/apps/blender/blender-launcher
