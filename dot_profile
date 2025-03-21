@@ -4,7 +4,3 @@ if [ -d "$HOME/adb-fastboot/platform-tools" ] ; then
  export PATH="$HOME/adb-fastboot/platform-tools:$PATH"
 fi
 
-#Gaffer Config
-export PATH=$PATH\:~/apps/gaffer
-
-export PATH=$PATH\:~/apps/blender/blender-launcher

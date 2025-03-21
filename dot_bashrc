@@ -25,7 +25,6 @@ fi
 unset rc
 
 # My aliases
-
 alias la="ll -a"
 alias sdu='sudo dnf update'
 alias sdi='sudo dnf install'
@@ -44,7 +43,14 @@ alias hyr="hyprctl reload"
 alias venv-activate="source .venv/bin/activate"
 alias conf-edit="chezmoi edit"
 alias conf-update="chezmoi update"
+alias conf-apply="chezmoi -v apply"
+alias du=ncdu
 
+# Neovim Configuration
+alias nv-kickstart='NVIM_APPNAME="nvim-kickstart" nvim'
+alias nv-patricegnim='NVIM_APPNAME="nvim-patricegnim" nvim'
+alias nv-jj='NVIM_APPNAME="nvim-jj" nvim'
+alias lazy='NVIM_APPNAME="nvim-lazy" nvim'
 
 # Fastanime
 source ~/.config/fastanime/completions/fastanime.bash
@@ -63,20 +69,8 @@ shortcut() {
 	sudo cp $1 /usr/share/applications/
 }
 
-alias du=ncdu
-
 eval "$(oh-my-posh init bash --config ~/.config/oh-my-posh/themes/amro.omp.json)"
-
 eval "$(zoxide init bash)"
-
-# Neovim Configuration
-alias nv-kickstart='NVIM_APPNAME="nvim-kickstart" nvim'
-alias nv-patricegnim='NVIM_APPNAME="nvim-patricegnim" nvim'
-alias nv-jj='NVIM_APPNAME="nvim-jj" nvim'
-alias lazy='NVIM_APPNAME="nvim-lazy" nvim'
-
-
-#. "$HOME/.cargo/env"
 
 # bun
 export BUN_INSTALL="$HOME/.bun"
@@ -84,3 +78,6 @@ export PATH=$BUN_INSTALL/bin:$PATH
 
 export EDITOR=nvim
 source /opt/rlm/rlmenvset.sh
+
+alias katana=/opt/Katana8.0v2/katana
+alias gaffer=~/gaffer-linux
