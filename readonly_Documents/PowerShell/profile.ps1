@@ -75,5 +75,6 @@ function gaffer-edit {
 }
 
 function bt {
-    beet im .
+  param($opt)
+    beet im $opt
 }
