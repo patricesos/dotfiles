@@ -74,6 +74,6 @@ function gaffer-edit {
     nvim f:/software/gaffer.bat
 }
 
-function glob {
-    dir
+function bt {
+    beet im .
 }
