@@ -78,3 +78,9 @@ function bt {
   param($opt)
     beet im $opt
 }
+
+function conf-edit { chezmoi edit }
+
+function conf-update { chezmoi update }
+
+function conf-apply { chezmoi -v apply }
