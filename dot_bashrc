@@ -64,6 +64,9 @@ audio() {
   yt-dlp -P '~/Music/' -f '140' -o '%(title)s.%(ext)s' "$@"
 }
 
+# DCC
+alias pixar-installer="sudo /opt/pixar/RenderMan-Installer/bin/RenderManInstaller"
+
 # Create AppImage shortcut
 shortcut() {
 	sudo cp $1 /usr/share/applications/
