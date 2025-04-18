@@ -1,5 +1,6 @@
 # .bashrc
 #
+#
 # Source global definitions
 if [ -f /etc/bashrc ]; then
   . /etc/bashrc
@@ -66,6 +67,7 @@ audio() {
 
 # DCC
 alias pixar-installer="sudo /opt/pixar/RenderMan-Installer-ncr-26.3/bin/RenderManInstaller"
+alias pixar-license="sudo /opt/pixar/RenderManProServer-26.3/bin/LicenseApp"
 
 # Create AppImage shortcut
 shortcut() {
