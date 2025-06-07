@@ -1,3 +1,8 @@
+if (!(Test-Path -Path $PROFILE)) {
+  New-Item -ItemType File -Path $PROFILE -Force
+}
+Add-Content -Path $PROFILE -Value '(& uv generate-shell-completion powershell) | Out-String | Invoke-Expression'
+
 # My powershell custom function
 
 hugo completion powershell | Out-String | Invoke-Expression
