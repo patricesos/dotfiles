@@ -85,7 +85,5 @@ function bt {
 }
 
 function conf-edit { chezmoi edit }
-
 function conf-update { chezmoi update }
-
 function conf-apply { chezmoi -v apply }
