@@ -1,0 +1,101 @@
+# .bashrc
+# Source global definitions
+if [ -f /etc/bashrc ]; then
+  . /etc/bashrc
+fi
+
+# User specific environment
+if ! [[ "$PATH" =~ "$HOME/.local/bin:$HOME/bin:" ]]; then
+  PATH="$HOME/.local/bin:$HOME/bin:$PATH"
+fi
+export PATH
+
+# Uncomment the following line if you don't like systemctl's auto-paging feature:
+# export SYSTEMD_PAGER=
+
+# User specific aliases and functions
+if [ -d ~/.bashrc.d ]; then
+  for rc in ~/.bashrc.d/*; do
+    if [ -f "$rc" ]; then
+      . "$rc"
+    fi
+  done
+fi
+unset rc
+
+# My aliases
+alias la="ll -a"
+alias sdu='sudo dnf update'
+alias sdi='sudo dnf install'
+alias sds="sudo dnf search"
+alias sdr="sudo dnf rm"
+alias fsf="fastfetch"
+alias sb="source ~/.bashrc"
+alias reset-audio="systemctl --user restart pipewire.service"
+alias hyr="hyprctl reload"
+alias venv-activate="source .venv/bin/activate"
+alias du=ncdu
+alias venv="source .venv/bin/activate"
+
+
+icat(){
+  kitten icat --use-window-size 1,1,300,1 "$@"
+}
+
+# Chezmoi
+alias ce="chezmoi edit"
+alias cu="chezmoi update"
+alias ca="chezmoi -v apply"
+alias ccd="chezmoi cd"
+
+gh-repo(){
+    gh repo create --private "$@" --source . --remote origin
+}
+
+alias emacs="emacsclient -nca 'emacs'"
+# Eza
+alias ll="eza -axl --icons=always --group-directories-first"
+
+# Neovim Configuration
+alias vi=nvim
+alias vim=nvim
+alias eb="nvim ~/.bashrc"
+alias nv-kickstart='NVIM_APPNAME="nvim-kickstart" nvim'
+alias lazy='NVIM_APPNAME="nvim-lazy" nvim'
+
+# Fastanime
+alias anime="fastanime anilist"
+
+# YouTube Downloader
+alias yt-dlp="yt-dlp -P '~/Downloads' -o '%(title)s.%(ext)s'"
+alias video="yt-dlp -P '~/Downloads/video' -o '%(title)s.%(ext)s' --embed-chapters --write-subs --sub-format 'ass'"
+alias yt-inst="yt-dlp -P '~/Downloads/YouTube/' -f 'ba+bv' -o '%(title)s%(tags)s.%(ext)s --cookies-from-browser firefox'"
+audio() {
+  yt-dlp -P '~/Downloads/music' -f '140' -o '%(title)s.%(ext)s' "$@"
+}
+
+# DCC
+alias pixar-installer="sudo /opt/pixar/RenderMan-Installer-ncr-26.3/bin/RenderManInstaller"
+alias pixar-license="sudo /opt/pixar/RenderManProServer-26.3/bin/LicenseApp"
+
+# Create AppImage shortcut
+shortcut() {
+	sudo cp $1 /usr/share/applications/
+}
+
+eval "$(zoxide init bash)"
+eval "$(starship init bash)"
+
+# bun
+export BUN_INSTALL="$HOME/.bun"
+export PATH=$BUN_INSTALL/bin:$PATH
+
+export PATH="$HOME/.config/emacs/bin:$PATH"
+export EDITOR=nvim
+
+alias katana=/opt/Katana8.0v2/katana
+alias gaffer=~/gaffer-linux
+
+# OLLAMA
+export OLLAMA_MODELS=~/.ollama/models
+

@@ -1,0 +1,251 @@
+#!/bin/bash
+
+set -euo pipefail
+
+# Helpers
+RED="\e[1;\e[31m"
+GREEN="\e[1;\e[32m"
+LIGHTGREEN="\e[32m"
+
+MAGNETA="\e[35m"
+ITALICRED="\e[3;${RED}m"
+ENDCOLOR="\e[0m"
+
+log() {
+  echo -e "\n[+] $1\n"
+}
+
+# =========================
+# Enable COPR repos
+# =========================
+
+init() {
+  sudo dnf -y install dnf-plugins-core \
+    curl gawk curl wget coreutils wget
+
+  log "${LIGHTGREEN}Installing Starship ...${ENDCOLOR}"
+  curl -sS https://starship.rs/install.sh | sh
+  
+  log "${LIGHTGREEN}Enabling COPR repositories...${ENDCOLOR}"
+  sudo dnf copr enable -y varlad/zellij || true
+  sudo dnf copr enable -y dejan/lazygit || true
+
+  # Enable RPM Fusion
+
+  log "${GREEN}Adding RPM Fusion repositories...${ENDCOLOR}"
+  FEDORA_VERSION=$(rpm -E %fedora)
+
+  if ! rpm -q rpmfusion-free-release &>/dev/null; then
+    sudo dnf install -y \
+      https://mirrors.rpmfusion.org/free/fedora/rpmfusion-free-release-${FEDORA_VERSION}.noarch.rpm \
+      https://mirrors.rpmfusion.org/nonfree/fedora/rpmfusion-nonfree-release-${FEDORA_VERSION}.noarch.rpm
+  fi
+}
+
+install-fonts(){
+  log "${GREEN}Installing MapleMono NF / Mononoki${ENDCOLOR}"
+  mkdir -p /tmp/
+
+  curl -o /tmp/MapleMonoNF.zip -L https://github.com/subframe7536/maple-font/releases/download/v7.7/MapleMono-NF-unhinted.zip
+  curl -o /tmp/mononoki.zip -L https://github.com/madmalik/mononoki/releases/download/1.6/mononoki.zip
+
+  unzip /tmp/MapleMonoNF.zip -d ~/.local/share/fonts/
+  unzip /tmp/mononoki.zip -d ~/.local/share/fonts/
+
+  fc-cache -vf ~/.local/share/fonts/
+  fc-list : family style | grep -i maple
+  fc-list : family style | grep -i mononoki
+}
+
+# =========================
+# Install Docker
+# =========================
+
+install-docker() {
+  log "${GREEN}Installing Docker...${ENDCOLOR}"
+  sudo dnf remove -y docker docker-client \
+    docker-client-latest docker-common \
+    docker-latest docker-latest-logrotate docker-logrotate \
+    docker-selinux docker-engine-selinux docker-engine
+
+  sudo dnf-3 config-manager --add-repo https://download.docker.com/linux/fedora/docker-ce.repo
+
+  sudo dnf install -y \
+    docker-ce docker-ce-cli \
+    containerd.io docker-buildx-plugin \
+    docker-compose-plugin
+
+  sudo systemctl enable --now docker
+  sudo systemctl start docker
+
+  log "${GREEN}Testing Docker... ${ENDCOLOR}"
+  sudo docker run hello-world
+
+  sudo groupadd docker
+  sudo usermod -aG docker $USER
+  newgrp docker
+}
+
+# =========================
+# Install eza (manual binary)
+# =========================
+
+install-eza() {
+  log "${GREEN}Installing eza...${ENDCOLOR}"
+
+  if ! command -v eza &>/dev/null; then
+    TMP_DIR=$(mktemp -d)
+    cd "$TMP_DIR"
+
+    wget -q https://github.com/eza-community/eza/releases/latest/download/eza_x86_64-unknown-linux-gnu.tar.gz
+    tar -xzf eza_x86_64-unknown-linux-gnu.tar.gz
+
+    sudo install -m 755 eza /usr/local/bin/eza
+
+    cd -
+    rm -rf "$TMP_DIR"
+
+  else
+    log "${MAGNETA}eza already installed, skipping.${ENDCOLOR}"
+  fi
+}
+
+# =========================
+# Install multimedia codecs
+# =========================
+
+install-codecs() {
+  log "${GREEN}Installing Media Codecs... ${ENDCOLOR}"
+
+  sudo dnf install -y \
+    ffmpeg ffmpeg-libs --allowerasing
+
+  sudo dnf group install -y \
+    sound-and-video
+}
+
+remove-packages() {
+  log "${RED}Uninstalling packages...${ENDCOLOR}"
+
+  pkgs=(plasma-discover dragon elisa-player)
+  installed=()
+
+  for p in "${pkgs[@]}"; do rpm -q "$p" &>/dev/null && installed+=("$p"); done
+
+  [ ${#installed[@]} -gt 0 ] && sudo dnf rm -y "${installed[@]}"
+
+  sudo dnf rm -y \
+    plasma-discover dragon elisa
+
+  sudo dnf group remove -y \
+    kde-apps kde-pim kde-media
+}
+
+# =========================
+# Main package install
+# =========================
+
+install-packages() {
+  log "${GREEN}Installing packages...${ENDCOLOR}"
+
+  install-eza
+
+  sudo dnf install -y \
+    kitty qbittorrent obs-studio mpv \
+    btop fastfetch chezmoi ncdu bat fd \
+    zoxide dust chafa fish 
+}
+
+music() {
+  log "${GREEN}Installing Music packages...${ENDCOLOR}"
+
+  sudo dnf install -y \
+    qsynth vmpk strawberry
+}
+
+install-dev() {
+  log "${GREEN}Initializing Dev Environment${ENDCOLOR}"
+
+  # curl -LsSf https://astral.sh/uv/install.sh | sh
+
+  sudo dnf install -y \
+    neovim lazygit tmux uv \
+    tmux zellij gcc make cmake
+
+  sudo dnf group install -y \
+    c-development development-tools
+}
+
+install-vscode() {
+  log "${GREEN}Installing Visual Studio Code...${ENDCOLOR}"
+
+  sudo rpm --import https://packages.microsoft.com/keys/microsoft.asc &&
+    echo -e "[code]\nname=Visual Studio Code\nbaseurl=https://packages.microsoft.com/yumrepos/vscode\nenabled=1\nautorefresh=1\ntype=rpm-md\ngpgcheck=1\ngpgkey=https://packages.microsoft.com/keys/microsoft.asc" | sudo tee /etc/yum.repos.d/vscode.repo >/dev/null
+
+  sudo dnf install -y \
+    code
+}
+
+install-neovide() {
+  mkdir -p /tmp 
+  mkdir -p ~/.local/bin
+
+  curl -o /tmp/neovide -L https://github.com/neovide/neovide/releases/latest/download/neovide.AppImage
+  chmod a+x /tmp/neovide
+
+  cp /tmp/neovide ~/.local/bin/
+}
+
+for command in $@; do
+  case $1 in
+
+  all)
+    init
+    install-fonts
+    remove-packages
+    install-packages
+    install-dev
+    install-codecs
+    install-docker
+    ;;
+
+  fonts)
+    install-fonts
+    ;;
+
+  code)
+    install-vscode
+    ;;
+
+  init)
+    remove-packages
+    init
+    install-packages
+    ;;
+
+  dev)
+    install-dev
+    install-neovide
+    ;;
+
+  docker)
+    install-docker
+    ;;
+
+  *)
+    log "${RED}Invalid input...${ENDCOLOR}"
+    log "Choose one of: 
+        ${LIGHTGREEN}init${ENDCOLOR}: Bootstrap new Fedora Environment.
+        ${LIGHTGREEN}init-repos${ENDCOLOR}: Bootstrap useful repos.
+        ${LIGHTGREEN}rm-packages${ENDCOLOR}: Remove packages I don't like.
+        ${LIGHTGREEN}codecs${ENDCOLOR}: Bootstrap codecs.
+        ${LIGHTGREEN}dev${ENDCOLOR}: Bootstrap Development Tools.
+        ${LIGHTGREEN}code${ENDCOLOR}: Install Visual Studio Code.
+        ${LIGHTGREEN}docker${ENDCOLOR}: Bootstrap Docker Installation.
+        "
+    ;;
+
+  esac
+done
+
+log "${GREEN}Bootstrap complete!${ENDCOLOR}"
