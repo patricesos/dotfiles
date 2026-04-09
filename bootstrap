@@ -25,7 +25,7 @@ init() {
 
   log "${LIGHTGREEN}Installing Starship ...${ENDCOLOR}"
   curl -sS https://starship.rs/install.sh | sh
-  
+
   log "${LIGHTGREEN}Enabling COPR repositories...${ENDCOLOR}"
   sudo dnf copr enable -y varlad/zellij || true
   sudo dnf copr enable -y dejan/lazygit || true
@@ -42,7 +42,7 @@ init() {
   fi
 }
 
-install-fonts(){
+install-fonts() {
   log "${GREEN}Installing MapleMono NF / Mononoki${ENDCOLOR}"
   mkdir -p /tmp/
 
@@ -63,6 +63,7 @@ install-fonts(){
 
 install-docker() {
   log "${GREEN}Installing Docker...${ENDCOLOR}"
+
   sudo dnf remove -y docker docker-client \
     docker-client-latest docker-common \
     docker-latest docker-latest-logrotate docker-logrotate \
@@ -79,6 +80,7 @@ install-docker() {
   sudo systemctl start docker
 
   log "${GREEN}Testing Docker... ${ENDCOLOR}"
+
   sudo docker run hello-world
 
   sudo groupadd docker
@@ -153,7 +155,7 @@ install-packages() {
   sudo dnf install -y \
     kitty qbittorrent obs-studio mpv \
     btop fastfetch chezmoi ncdu bat fd \
-    zoxide dust chafa fish 
+    zoxide dust chafa fish
 }
 
 music() {
@@ -165,8 +167,6 @@ music() {
 
 install-dev() {
   log "${GREEN}Initializing Dev Environment${ENDCOLOR}"
-
-  # curl -LsSf https://astral.sh/uv/install.sh | sh
 
   sudo dnf install -y \
     neovim lazygit tmux uv \
@@ -187,7 +187,7 @@ install-vscode() {
 }
 
 install-neovide() {
-  mkdir -p /tmp 
+  mkdir -p /tmp
   mkdir -p ~/.local/bin
 
   curl -o /tmp/neovide -L https://github.com/neovide/neovide/releases/latest/download/neovide.AppImage
@@ -207,6 +207,7 @@ for command in $@; do
     install-dev
     install-codecs
     install-docker
+    install-vscode
     ;;
 
   fonts)
