@@ -99,10 +99,9 @@ install-eza() {
     TMP_DIR=$(mktemp -d)
     cd "$TMP_DIR"
 
-    wget -q https://github.com/eza-community/eza/releases/latest/download/eza_x86_64-unknown-linux-gnu.tar.gz
-    tar -xzf eza_x86_64-unknown-linux-gnu.tar.gz
-
-    sudo install -m 755 eza /usr/local/bin/eza
+    curl -o eza.tar.gz -L https://github.com/eza-community/eza/releases/latest/download/eza_x86_64-unknown-linux-gnu.tar.gz
+    tar -xzf eza.tar.gz
+    cp eza ~/.local/bin/
 
     cd -
     rm -rf "$TMP_DIR"
@@ -212,6 +211,10 @@ for command in $@; do
 
   fonts)
     install-fonts
+    ;;
+
+  eza)
+    install-eza
     ;;
 
   code)
