@@ -86,7 +86,7 @@ for vt in range(1, 8):
     )
 
 
-groups = [Group(i) for i in "1234"]
+groups = [Group(i) for i in "12345"]
 
 for i in groups:
     keys.extend(
@@ -114,7 +114,7 @@ for i in groups:
 
 layouts = [
     layout.Columns(border_focus_stack=["#d75f5f", "#8f3d3d"], border_width=4),
-    layout.Max(),
+    # layout.Max(),
     # Try more layouts by unleashing below layouts.
     # layout.Stack(num_stacks=2),
     # layout.Bsp(),
@@ -123,15 +123,15 @@ layouts = [
     # layout.MonadWide(),
     # layout.RatioTile(),
     # layout.Tile(),
-    # layout.TreeTab(),
+    layout.TreeTab(),
     # layout.VerticalTile(),
-    # layout.Zoomy(),
+    layout.Zoomy(),
 ]
 
 widget_defaults = dict(
-    font="sans",
-    fontsize=12,
-    padding=3,
+    font="Maple Mono NF",
+    fontsize=16,
+    padding=4,
 )
 extension_defaults = widget_defaults.copy()
 
@@ -140,7 +140,7 @@ screens = [
     Screen(
         top=bar.Bar(
             [
-                widget.CurrentLayout(),
+                # widget.CurrentLayout(),
                 widget.GroupBox(),
                 widget.Prompt(),
                 widget.WindowName(),
@@ -151,12 +151,15 @@ screens = [
                     name_transform=lambda name: name.upper(),
                 ),
                 # widget.TextBox("default config", name="default"),
-                widget.TextBox("Press &lt;M-r&gt; to spawn", foreground="#d75f5f"),
+                # widget.TextBox("Press &lt;M-r&gt; to spawn", foreground="#d75f5f"),
                 # NB Systray is incompatible with Wayland, consider using StatusNotifier instead
+                widget.CPUGraph(width=30),
                 widget.StatusNotifier(),
                 # widget.Systray(),
-                widget.Clock(format="%Y-%m-%d %a %I:%M %p"),
+                widget.Clock(format="%d-%m %a %H:%M %p"),
+                # widget.Clock(format="%Y-%m-%d %a %I:%M %p"),
                 # widget.QuickExit(),
+                # widget.CurrentLayoutIcon(scale=2),
             ],
             24,
             border_width=[1, 0, 1, 0],  # Draw top and bottom borders
