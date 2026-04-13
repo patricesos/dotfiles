@@ -1,3 +1,7 @@
+"""This file contains Qtile configuration.
+author:
+"""
+
 import os
 from collections.abc import Callable
 
