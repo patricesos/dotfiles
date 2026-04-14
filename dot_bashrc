@@ -37,8 +37,7 @@ alias venv-activate="source .venv/bin/activate"
 alias du=ncdu
 alias venv="source .venv/bin/activate"
 
-
-icat(){
+icat() {
   kitten icat --use-window-size 1,1,300,1 "$@"
 }
 
@@ -48,11 +47,13 @@ alias cu="chezmoi update"
 alias ca="chezmoi -v apply"
 alias ccd="chezmoi cd"
 
-gh-repo(){
-    gh repo create --private "$@" --source . --remote origin
+gh-repo() {
+  gh repo create --private "$@" --source . --remote origin
 }
 
 alias emacs="emacsclient -nca 'emacs'"
+alias doom-readd="chezmoi re-add ~/.config/doom/"
+
 # Eza
 alias ll="eza -axl --icons=always --group-directories-first"
 
@@ -80,7 +81,7 @@ alias pixar-license="sudo /opt/pixar/RenderManProServer-26.3/bin/LicenseApp"
 
 # Create AppImage shortcut
 shortcut() {
-	sudo cp $1 /usr/share/applications/
+  sudo cp $1 /usr/share/applications/
 }
 
 eval "$(zoxide init bash)"
@@ -98,4 +99,3 @@ alias gaffer=~/gaffer-linux
 
 # OLLAMA
 export OLLAMA_MODELS=~/.ollama/models
-
