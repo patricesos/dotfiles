@@ -167,9 +167,13 @@ music() {
 install-dev() {
   log "${GREEN}Initializing Dev Environment${ENDCOLOR}"
 
-  sudo dnf install -y \
-    neovim lazygit tmux uv \
-    tmux zellij gcc make cmake
+  sudo dnf install -y clang-format \
+    neovim lazygit tmux uv cmake gcc \
+    tmux zellij make pandoc shellcheck \
+    shfmt pipx tree-sitter
+
+  pipx install isort pipenv black \
+    pyflakes nose pytest
 
   sudo dnf group install -y \
     c-development development-tools
