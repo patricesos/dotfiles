@@ -21,8 +21,8 @@
 ;; See 'C-h v doom-font' for documentation and more examples of what they
 ;; accept. For example:
 ;;
-(setq doom-font (font-spec :family "Maple Mono NF" :size 14 :weight 'semi-light)
-     doom-variable-pitch-font (font-spec :family "Maple Mono NF" :size 13))
+(setq doom-font (font-spec :family "Maple Mono NF" :size 18 :weight 'semi-light)
+      doom-variable-pitch-font (font-spec :family "Maple Mono NF" :size 13))
 ;;
 ;; If you or Emacs can't find your font, use 'M-x describe-font' to look them
 ;; up, `M-x eval-region' to execute elisp code, and 'M-x doom/reload-font' to
@@ -73,3 +73,6 @@
 ;;
 ;; You can also try 'gd' (or 'C-c c d') to jump to their definition and see how
 ;; they are implemented.
+;;
+(use-package! quickrun
+  :bind ("C-c r" . quickrun))
