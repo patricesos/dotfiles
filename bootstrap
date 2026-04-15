@@ -179,10 +179,11 @@ install-emacs() {
   sudo dnf in -y emacs
 
   sudo dnf in -y pandoc shellcheck \
-    shfmt pipx tree-sitter
+    shfmt pipx tree-sitter dasel
 
   pipx install isort pipenv black \
-    pyflakes nose pytest
+    pyflakes nose pytest ruff ty \
+    ruff-lsp
 }
 
 install-vscode() {
