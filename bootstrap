@@ -43,18 +43,44 @@ init() {
 }
 
 install-fonts() {
-  log "${GREEN}Installing MapleMono NF / Mononoki${ENDCOLOR}"
-  mkdir -p /tmp/
+  log "${GREEN}Installing MapleMono NF / Mononoki / NerdFontsSymbolsOnly ${ENDCOLOR}"
+  mkdir -p ~/.local/share/fonts/
 
-  curl -o /tmp/MapleMonoNF.zip -L https://github.com/subframe7536/maple-font/releases/download/v7.7/MapleMono-NF-unhinted.zip
-  curl -o /tmp/mononoki.zip -L https://github.com/madmalik/mononoki/releases/download/1.6/mononoki.zip
+  _install_font_if_missing() {
+    local name="$1"
+    local url="$2"
+    local grep_pattern="$3"
+    local tmp_file="/tmp/${name}.zip"
 
-  unzip /tmp/MapleMonoNF.zip -d ~/.local/share/fonts/
-  unzip /tmp/mononoki.zip -d ~/.local/share/fonts/
+    if fc-list | grep -qi "$grep_pattern"; then
+      log "Downloading $name..."
+      curl -o "$tmp_file" -L "$url"
+      unzip "$tmp_file" -d ~/.local/share/fonts/
+      rm "$tmp_file"
+
+    else
+      log "${MAGNETA}$name already installed, skipping.${ENDCOLOR}"
+      return 0
+
+    fi
+  }
+
+  _install_font_if_missing "MapleMonoNF" \
+    "https://github.com/subframe7536/maple-font/releases/latest/download/MapleMono-NF-unhinted.zip" \
+    "maple"
+
+  _install_font_if_missing "mononoki" \
+    "https://github.com/madmalik/mononoki/releases/latest/download/mononoki.zip" \
+    "mononoki"
+
+  _install_font_if_missing "nerdfontsymbols" \
+    "https://github.com/ryanoasis/nerd-fonts/releases/latest/download/NerdFontsSymbolsOnly.zip" \
+    "symbols"
 
   fc-cache -vf ~/.local/share/fonts/
   fc-list : family style | grep -i maple
   fc-list : family style | grep -i mononoki
+  fc-list : family style | grep -i 'symbols nerd font'
 }
 
 # =========================
@@ -175,14 +201,31 @@ install-dev() {
     c-development development-tools
 }
 
+install-doom() {
+
+  log "${GREEN}Cloning Doom Emacs...${ENDCOLOR}"
+  git clone --depth 1 https://github.com/doomemacs/doomemacs ~/.config/emacs
+  ~/.config/emacs/bin/doom install -y
+
+}
+
 install-emacs() {
+  log "${GREEN}Installing Emacs and dependencies...${ENDCOLOR}"
+
   sudo dnf in -y emacs
 
-  git clone --depth 1 https://github.com/doomemacs/doomemacs ~/.config/emacs
-  ~/.config/emacs/bin/doom install
-
   sudo dnf in -y pandoc shellcheck \
-    shfmt pipx tree-sitter dasel
+    shfmt pipx tree-sitter clang-format
+
+  # TODO
+
+  if ! command -v dasel &>/dev/null; then
+    curl -sSLf "$(curl -sSLf https://api.github.com/repos/tomwright/dasel/releases/latest | grep browser_download_url | grep linux_amd64 | grep -v .gz | cut -d\" -f 4)" -L -o dasel && chmod +x dasel
+    mv ./dasel ~/.local/bin/
+
+  else
+    log "${MAGNETA}dasel already installed, skipping.${ENDCOLOR}"
+  fi
 
   pipx install isort pipenv black \
     pyflakes nose pytest ruff ty \
@@ -248,6 +291,10 @@ for command in $@; do
 
   docker)
     install-docker
+    ;;
+
+  doom)
+    install-doom
     ;;
 
   emacs)
