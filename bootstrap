@@ -178,6 +178,9 @@ install-dev() {
 install-emacs() {
   sudo dnf in -y emacs
 
+  git clone --depth 1 https://github.com/doomemacs/doomemacs ~/.config/emacs
+  ~/.config/emacs/bin/doom install
+
   sudo dnf in -y pandoc shellcheck \
     shfmt pipx tree-sitter
 
