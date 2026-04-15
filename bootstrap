@@ -204,8 +204,12 @@ install-dev() {
 install-doom() {
 
   log "${GREEN}Cloning Doom Emacs...${ENDCOLOR}"
-  git clone --depth 1 https://github.com/doomemacs/doomemacs ~/.config/emacs
-  ~/.config/emacs/bin/doom install -y
+  if ! test -d ~/.config/emacs/; then
+    git clone --depth 1 https://github.com/doomemacs/doomemacs ~/.config/emacs
+    ~/.config/emacs/bin/doom install
+  else
+    log "${MAGNETA}Doom Emacs - Cloned...${ENDCOLOR}"
+  fi
 
 }
 
@@ -220,8 +224,12 @@ install-emacs() {
   # TODO
 
   if ! command -v dasel &>/dev/null; then
-    curl -sSLf "$(curl -sSLf https://api.github.com/repos/tomwright/dasel/releases/latest | grep browser_download_url | grep linux_amd64 | grep -v .gz | cut -d\" -f 4)" -L -o dasel && chmod +x dasel
-    mv ./dasel ~/.local/bin/
+    mkdir -p /tmp
+    mkdir -p ~/.local/bin
+
+    curl -sSLf "$(curl -sSLf https://api.github.com/repos/tomwright/dasel/releases/latest | grep browser_download_url | grep linux_amd64 | grep -v .gz | cut -d\" -f 4)" -L -o /tmp/dasel
+    chmod +x /tmp/dasel
+    mv /tmp/dasel ~/.local/bin/dasel
 
   else
     log "${MAGNETA}dasel already installed, skipping.${ENDCOLOR}"
