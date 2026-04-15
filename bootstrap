@@ -24,11 +24,19 @@ init() {
     curl gawk curl wget coreutils wget
 
   log "${LIGHTGREEN}Installing Starship ...${ENDCOLOR}"
-  curl -sS https://starship.rs/install.sh | sh
+
+  if ! command -v starship &>/dev/null; then
+    # TMP_DIR=$(mktemp -d)
+    log "${MAGNETA} Starship already installed...${ENDCOLOR}"
+    return 0
+  else
+    curl -sS https://starship.rs/install.sh | sh
+  fi
 
   log "${LIGHTGREEN}Enabling COPR repositories...${ENDCOLOR}"
   sudo dnf copr enable -y varlad/zellij || true
   sudo dnf copr enable -y dejan/lazygit || true
+  sudo dnf copr enable -y alternateved/keyd || true
 
   # Enable RPM Fusion
 
@@ -183,6 +191,15 @@ install-packages() {
     zoxide dust chafa fish
 }
 
+install-keyd() {
+  sudo dnf in -y keyd
+  sudo systemctl enable keyd
+
+  echo "[ids]\n*\n\n[main]\ncapslock = escape\nescape = capslock\n" | sudo tee /etc/keyd/default.conf >/dev/null
+
+  sudo systemctl restart keyd
+}
+
 music() {
   log "${GREEN}Installing Music packages...${ENDCOLOR}"
 
@@ -272,6 +289,10 @@ for command in $@; do
     install-codecs
     install-docker
     install-vscode
+    ;;
+
+  keyd)
+    install-keyd
     ;;
 
   fonts)
