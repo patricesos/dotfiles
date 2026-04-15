@@ -52,6 +52,8 @@ gh-repo() {
 }
 
 alias emacs="emacsclient -nca 'emacs'"
+alias doom-readd="chezmoi re-add ~/.config/doom/"
+
 # Eza
 alias ll="eza -axl --icons=always --group-directories-first"
 
