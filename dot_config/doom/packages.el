@@ -7,3 +7,5 @@
 ;;   3. Restart Emacs.
 
 (package! quickrun)
+;; (package! pet)
+;; (package! pyvenv)
