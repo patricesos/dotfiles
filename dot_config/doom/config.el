@@ -30,7 +30,7 @@
 (setq display-line-numbers-type 'relative)
 
 (setq org-directory "~/org/")
-(setq projectile-project-search-path "~/code")
+(setq projectile-project-search-path "~/code/")
 
 ;; https://www.alcarney.me/blog/2024/local-llms-with-ollama-and-gptel/
 ;;
