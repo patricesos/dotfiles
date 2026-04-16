@@ -91,6 +91,7 @@ manual_package_install() {
 }
 
 init() {
+    mkdir -p ~/.local/bin
     sudo dnf -y install dnf-plugins-core \
         curl gawk wget coreutils wget
 
