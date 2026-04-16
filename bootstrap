@@ -226,7 +226,7 @@ install-keyd() {
     sudo dnf in -y keyd
     sudo systemctl enable keyd
 
-    echo "\[ids\]\n*\n\n\[main\]\ncapslock = escape\nescape = capslock\n" | sudo tee /etc/keyd/default.conf >/dev/null
+    echo -e "[ids]\n*\n[main]\ncapslock = escape\nescape = capslock\n" | sudo tee /etc/keyd/default.conf >/dev/null
 
     sudo systemctl restart keyd
 }
@@ -298,6 +298,9 @@ for command in "$@"; do
         install-codecs
         install-docker
         install-vscode
+        install-keyd
+        install-emacs
+        install-doom
         ;;
 
     keyd)
@@ -306,10 +309,6 @@ for command in "$@"; do
 
     fonts)
         install-fonts
-        ;;
-
-    eza)
-        install-eza
         ;;
 
     code)
