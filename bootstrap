@@ -15,7 +15,7 @@ GREEN='\033[0;32m'
 YELLOW='\033[1;33m'
 NC='\033[0m'
 
-log() { echo -e "\n[+] $1\n"; }
+info() { echo -e "\n[+] $1\n"; }
 
 info() { echo -e "${GREEN}[INFO] $* ${NC}\n"; }
 warn() { echo -e "${YELLOW}[WARN] $* ${NC}\n"; }
@@ -25,6 +25,26 @@ warn() { echo -e "${YELLOW}[WARN] $* ${NC}\n"; }
 
 command_exists() {
     command -v "$1" &>/dev/null
+}
+
+install_font() {
+    local name="$1"
+    local url="$2"
+    local grep_pattern="$3"
+    local tmp_file="/tmp/${name}.zip"
+
+    info "Installing $name..."
+
+    if fc-list | grep -qi "$grep_pattern"; then
+        info "Downloading $name..."
+        curl -o "$tmp_file" -L "$url"
+        unzip "$tmp_file" -d ~/.local/share/fonts/
+        rm "$tmp_file"
+
+    else
+        info "${MAGNETA}$name already installed, skipping.${NC}"
+        return 0
+    fi
 }
 
 manual_package_install() {
@@ -70,38 +90,22 @@ manual_package_install() {
     fi
 }
 
-manual() {
-    manual_package_install "eza" "https://github.com/eza-community/eza/releases/latest/download/eza_x86_64-unknown-linux-gnu.tar.gz"
-}
-
 init() {
     sudo dnf -y install dnf-plugins-core \
         curl gawk wget coreutils wget
 
-    log "${LIGHTGREEN}Installing Starship ...${NC}"
+    info "${LIGHTGREEN}Installing Starship ...${NC}"
 
-    if ! command -v starship &>/dev/null; then
-        TMP_DIR=$(mktemp -d)
-        cd "$TMP_DIR"
+    manual_package_install "starship" "https://github.com/starship/starship/releases/latest/download/starship-x86_64-unknown-linux-gnu.tar.gz"
 
-        curl -o starship.tar.gz -L https://github.com/starship/starship/releases/latest/download/starship-x86_64-unknown-linux-gnu.tar.gz
-        tar -xzf starship.tar.gz
-        cp starship ~/.local/bin/
-
-        rm -rf "$TMP_DIR"
-
-    else
-        log "${MAGNETA}'startship' already installed, skipping.${NC}"
-    fi
-
-    log "${LIGHTGREEN}Enabling COPR repositories...${NC}"
+    info "${LIGHTGREEN}Enabling COPR repositories...${NC}"
     sudo dnf copr enable -y varlad/zellij || true
     sudo dnf copr enable -y dejan/lazygit || true
     sudo dnf copr enable -y alternateved/keyd || true
 
     # Enable RPM Fusion
 
-    log "${GREEN}Adding RPM Fusion repositories...${NC}"
+    info "${GREEN}Adding RPM Fusion repositories...${NC}"
     FEDORA_VERSION=$(rpm -E %fedora)
 
     if ! rpm -q rpmfusion-free-release &>/dev/null; then
@@ -111,25 +115,9 @@ init() {
     fi
 }
 
-install_font() {
-    local name="$1"
-    local url="$2"
-    local grep_pattern="$3"
-    local tmp_file="/tmp/${name}.zip"
-
-    info "Installing $name..."
-
-    if fc-list | grep -qi "$grep_pattern"; then
-        log "Downloading $name..."
-        curl -o "$tmp_file" -L "$url"
-        unzip "$tmp_file" -d ~/.local/share/fonts/
-        rm "$tmp_file"
-
-    else
-        log "${MAGNETA}$name already installed, skipping.${NC}"
-        return 0
-    fi
-}
+# =========================
+# Install Fonts
+# =========================
 
 install-fonts() {
     mkdir -p ~/.local/share/fonts/
@@ -157,14 +145,15 @@ install-fonts() {
 # =========================
 
 install-docker() {
-    log "${GREEN}Installing Docker...${NC}"
+    info "${GREEN}Installing Docker...${NC}"
 
     sudo dnf remove -y docker docker-client \
         docker-client-latest docker-common \
-        docker-latest docker-latest-logrotate docker-logrotate \
+        docker-latest docker-latest-inforotate docker-logrotate \
         docker-selinux docker-engine-selinux docker-engine
 
-    sudo dnf-3 config-manager --add-repo \https://download.docker.com/linux/fedora/docker-ce.repo
+    sudo dnf-3 config-manager --add-repo \
+        https://download.docker.com/linux/fedora/docker-ce.repo
 
     sudo dnf install -y \
         docker-ce docker-ce-cli \
@@ -174,36 +163,13 @@ install-docker() {
     sudo systemctl enable --now docker
     sudo systemctl start docker
 
-    log "${GREEN}Testing Docker... ${NC}"
+    # sudo groupadd docker
+    # sudo usermod -aG docker $USER
+    # newgrp docker
 
+    info "${GREEN}Testing Docker... ${NC}"
     sudo docker run hello-world
 
-    sudo groupadd docker
-    sudo usermod -aG docker $USER
-    newgrp docker
-}
-
-# =========================
-# Install eza (manual binary)
-# =========================
-
-install-eza() {
-    log "${GREEN}Installing eza...${NC}"
-
-    if ! command -v eza &>/dev/null; then
-        TMP_DIR=$(mktemp -d)
-        cd "$TMP_DIR"
-
-        curl -o eza.tar.gz -L https://github.com/eza-community/eza/releases/latest/download/eza_x86_64-unknown-linux-gnu.tar.gz
-        tar -xzf eza.tar.gz
-        cp eza ~/.local/bin/
-
-        cd -
-        rm -rf "$TMP_DIR"
-
-    else
-        log "${MAGNETA}eza already installed, skipping.${NC}"
-    fi
 }
 
 # =========================
@@ -211,7 +177,7 @@ install-eza() {
 # =========================
 
 install-codecs() {
-    log "${GREEN}Installing Media Codecs... ${NC}"
+    info "${GREEN}Installing Media Codecs... ${NC}"
 
     sudo dnf install -y \
         ffmpeg ffmpeg-libs --allowerasing
@@ -220,8 +186,12 @@ install-codecs() {
         sound-and-video
 }
 
+# =========================
+# Remove unwanted packages
+# =========================
+
 remove-packages() {
-    log "${RED}Uninstalling packages...${NC}"
+    info "${RED}Uninstalling packages...${NC}"
 
     pkgs=(plasma-discover dragon elisa-player)
     installed=()
@@ -237,10 +207,14 @@ remove-packages() {
         kde-apps kde-pim kde-media
 }
 
-install-packages() {
-    log "${GREEN}Installing packages...${NC}"
+# =========================
+# Install packages
+# =========================
 
-    install-eza
+install-packages() {
+    info "${GREEN}Installing packages...${NC}"
+
+    manual_package_install "eza" "https://github.com/eza-community/eza/releases/latest/download/eza_x86_64-unknown-linux-gnu.tar.gz"
 
     sudo dnf install -y \
         kitty qbittorrent obs-studio mpv \
@@ -257,15 +231,17 @@ install-keyd() {
     sudo systemctl restart keyd
 }
 
-music() {
-    log "${GREEN}Installing Music packages...${NC}"
+install-music() {
+    info "${GREEN}Installing Music packages...${NC}"
 
     sudo dnf install -y \
         qsynth vmpk strawberry
 }
 
 install-dev() {
-    log "${GREEN}Initializing Dev Environment${NC}"
+    info "${GREEN}Initializing Dev Environment${NC}"
+
+    manual_package_install "neovide" "https://github.com/neovide/neovide/releases/latest/download/neovide.AppImage"
 
     sudo dnf install -y clang-format \
         neovim lazygit tmux uv cmake gcc \
@@ -276,35 +252,24 @@ install-dev() {
 }
 
 install-doom() {
+    info "Installing Doom Emacs..."
 
-    log "${GREEN}Cloning Doom Emacs...${NC}"
     if ! test -d ~/.config/emacs/; then
         git clone --depth 1 https://github.com/doomemacs/doomemacs ~/.config/emacs
         ~/.config/emacs/bin/doom install
     else
-        log "${MAGNETA}Doom Emacs - Cloned...${NC}"
+        warn "Doom Emacs already installed, skipping."
     fi
-
 }
 
 install-emacs() {
-    log "${GREEN}Installing Emacs and dependencies...${NC}"
+    info "Installing Emacs and dependencies..."
 
     sudo dnf in -y emacs pandoc shellcheck \
         shfmt pipx tree-sitter clang-format \
         bash-language-server
 
-    if ! command -v dasel &>/dev/null; then
-        mkdir -p /tmp
-        mkdir -p ~/.local/bin
-
-        curl -o /tmp/dasel https://github.com/TomWright/dasel/releases/latest/download/dasel_linux_amd64
-        chmod +x /tmp/dasel
-
-        mv /tmp/dasel ~/.local/bin/dasel
-    else
-        log "${MAGNETA}dasel already installed, skipping.${NC}"
-    fi
+    manual_package_install "dasel" "https://github.com/TomWright/dasel/releases/latest/download/dasel_linux_amd64"
 
     pipx install isort pipenv black \
         pyflakes nose pytest ruff ty \
@@ -312,23 +277,13 @@ install-emacs() {
 }
 
 install-vscode() {
-    log "${GREEN}Installing Visual Studio Code...${NC}"
+    info "Installing Visual Studio Code..."
 
     sudo rpm --import https://packages.microsoft.com/keys/microsoft.asc &&
         echo -e "[code]\nname=Visual Studio Code\nbaseurl=https://packages.microsoft.com/yumrepos/vscode\nenabled=1\nautorefresh=1\ntype=rpm-md\ngpgcheck=1\ngpgkey=https://packages.microsoft.com/keys/microsoft.asc" | sudo tee /etc/yum.repos.d/vscode.repo >/dev/null
 
     sudo dnf install -y \
         code
-}
-
-install-neovide() {
-    mkdir -p /tmp
-    mkdir -p ~/.local/bin
-
-    curl -o /tmp/neovide -L https://github.com/neovide/neovide/releases/latest/download/neovide.AppImage
-    chmod a+x /tmp/neovide
-
-    cp /tmp/neovide ~/.local/bin/
 }
 
 for command in "$@"; do
@@ -369,7 +324,6 @@ for command in "$@"; do
 
     dev)
         install-dev
-        install-neovide
         ;;
 
     docker)
@@ -383,13 +337,10 @@ for command in "$@"; do
     emacs)
         install-emacs
         ;;
-    t)
-        manual
-        ;;
 
     *)
-        log "${RED}Invalid input...${NC}"
-        log "Choose one of:
+        info "${RED}Invalid input...${NC}"
+        info "Choose one of:
         ${LIGHTGREEN}init${NC}: Bootstrap new Fedora Environment.
         ${LIGHTGREEN}init-repos${NC}: Bootstrap useful repos.
         ${LIGHTGREEN}rm-packages${NC}: Remove packages I don't like.
@@ -403,4 +354,4 @@ for command in "$@"; do
     esac
 done
 
-log "${GREEN}Bootstrap complete!${NC}"
+info "${GREEN}Bootstrap complete!${NC}"
