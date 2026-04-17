@@ -113,7 +113,7 @@ install_single_font() {
 
     info "Installing $name..."
 
-    if ! fc-list | grep -qi "$name"; then
+    if fc-list | grep -qi "$name"; then
         info "Downloading $name..."
         curl -o "$tmp_file" -L "$url"
         unzip -o "$tmp_file" -d ~/.local/share/fonts/
