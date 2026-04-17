@@ -8,42 +8,24 @@ LIGHTGREEN="\033[32m"
 
 MAGNETA="\033[35m"
 ITALICRED="\033[3;${RED}m"
-NC="\033[0m"
 
-RED='\033[0;31m'
-GREEN='\033[0;32m'
 YELLOW='\033[1;33m'
 NC='\033[0m'
 
-info() { echo -e "\n[+] $1\n"; }
-
+log() { echo -e "\n[+] $1\n"; }
 info() { echo -e "${GREEN}[INFO] $* ${NC}\n"; }
 warn() { echo -e "${YELLOW}[WARN] $* ${NC}\n"; }
 # error() {
 #     echo -e "${RED}[ERROR]${NC} $*";
 #           exit 1}
 
+
+# =========================
+# Manual Packages Install
+# =========================
+
 command_exists() {
     command -v "$1" &>/dev/null
-}
-
-install_font() {
-    local name="$1"
-    local url="$2"
-    local grep_pattern="$3"
-    local tmp_file="/tmp/${name}.zip"
-
-    info "Installing $name..."
-
-    if fc-list | grep -qi "$grep_pattern"; then
-        info "Downloading $name..."
-        curl -o "$tmp_file" -L "$url"
-        unzip "$tmp_file" -d ~/.local/share/fonts/
-        rm "$tmp_file"
-
-    else
-        info "${MAGNETA}$name already installed, skipping.${NC}"
-    fi
 }
 
 manual_package_install() {
@@ -52,6 +34,8 @@ manual_package_install() {
     local url="$2"
 
     info "Installing ${package}..."
+
+    mkdir -p ~/.local/bin/
 
     if ! command_exists "$package"; then
         local tmp_dir
@@ -79,6 +63,7 @@ manual_package_install() {
             echo "UNKNOWN"
         fi
 
+        chmod a+x "$package"
         cp "$package" ~/.local/bin/
 
         popd >/dev/null
@@ -90,22 +75,23 @@ manual_package_install() {
 }
 
 init() {
-    mkdir -p ~/.local/bin
     sudo dnf -y install dnf-plugins-core \
         curl gawk wget coreutils wget
 
-    info "${LIGHTGREEN}Installing Starship ...${NC}"
+    info "Installing Starship..."
 
-    manual_package_install "starship" "https://github.com/starship/starship/releases/latest/download/starship-x86_64-unknown-linux-gnu.tar.gz"
+    manual_package_install "starship" \
+        "https://github.com/starship/starship/releases/latest/download/starship-x86_64-unknown-linux-gnu.tar.gz"
 
-    info "${LIGHTGREEN}Enabling COPR repositories...${NC}"
+    info "Enabling COPR repositories..."
+
     sudo dnf copr enable -y varlad/zellij || true
     sudo dnf copr enable -y dejan/lazygit || true
     sudo dnf copr enable -y alternateved/keyd || true
 
     # Enable RPM Fusion
 
-    info "${GREEN}Adding RPM Fusion repositories...${NC}"
+    info "Adding RPM Fusion repositories..."
     FEDORA_VERSION=$(rpm -E %fedora)
 
     if ! rpm -q rpmfusion-free-release &>/dev/null; then
@@ -119,18 +105,36 @@ init() {
 # Install Fonts
 # =========================
 
+install_single_font() {
+    local name="$1"
+    local url="$2"
+    local grep_pattern="$3"
+    local tmp_file="/tmp/${name}.zip"
+
+    info "Installing $name..."
+
+    if ! fc-list | grep -qi "$grep_pattern"; then
+        info "Downloading $name..."
+        curl -o "$tmp_file" -L "$url"
+        unzip "$tmp_file" -d ~/.local/share/fonts/
+        rm "$tmp_file"
+    else
+        info "${MAGNETA}$name already installed, skipping.${NC}"
+    fi
+}
+
 install-fonts() {
     mkdir -p ~/.local/share/fonts/
 
-    install_font "MapleMonoNF" \
+    install_single_font "MapleMonoNF" \
         "https://github.com/subframe7536/maple-font/releases/latest/download/MapleMono-NF-unhinted.zip" \
         "maple"
 
-    install_font "mononoki" \
+    install_single_font "mononoki" \
         "https://github.com/madmalik/mononoki/releases/latest/download/mononoki.zip" \
         "mononoki"
 
-    install_font "nerdfontsymbols" \
+    install_single_font "nerdfontsymbols" \
         "https://github.com/ryanoasis/nerd-fonts/releases/latest/download/NerdFontsSymbolsOnly.zip" \
         "symbols"
 
@@ -145,7 +149,7 @@ install-fonts() {
 # =========================
 
 install-docker() {
-    info "${GREEN}Installing Docker...${NC}"
+    info "Installing Docker..."
 
     sudo dnf remove -y docker docker-client \
         docker-client-latest docker-common \
@@ -167,7 +171,7 @@ install-docker() {
     # sudo usermod -aG docker $USER
     # newgrp docker
 
-    info "${GREEN}Testing Docker... ${NC}"
+    info "Testing Docker..."
     sudo docker run hello-world
 
 }
@@ -191,7 +195,7 @@ install-codecs() {
 # =========================
 
 remove-packages() {
-    info "${RED}Uninstalling packages...${NC}"
+    warn "Uninstalling packages..."
 
     pkgs=(plasma-discover dragon elisa-player)
     installed=()
@@ -212,9 +216,10 @@ remove-packages() {
 # =========================
 
 install-packages() {
-    info "${GREEN}Installing packages...${NC}"
+    info "Installing packages..."
 
-    manual_package_install "eza" "https://github.com/eza-community/eza/releases/latest/download/eza_x86_64-unknown-linux-gnu.tar.gz"
+    manual_package_install "eza" \
+        "https://github.com/eza-community/eza/releases/latest/download/eza_x86_64-unknown-linux-gnu.tar.gz"
 
     sudo dnf install -y \
         kitty qbittorrent obs-studio mpv \
@@ -232,16 +237,17 @@ install-keyd() {
 }
 
 install-music() {
-    info "${GREEN}Installing Music packages...${NC}"
+    info "Installing Music packages..."
 
     sudo dnf install -y \
         qsynth vmpk strawberry
 }
 
 install-dev() {
-    info "${GREEN}Initializing Dev Environment${NC}"
+    info "Initializing Dev Environment..."
 
-    manual_package_install "neovide" "https://github.com/neovide/neovide/releases/latest/download/neovide.AppImage"
+    manual_package_install "neovide" \
+        "https://github.com/neovide/neovide/releases/latest/download/neovide.AppImage"
 
     sudo dnf install -y clang-format \
         neovim lazygit tmux uv cmake gcc \
@@ -253,6 +259,8 @@ install-dev() {
 
 install-doom() {
     info "Installing Doom Emacs..."
+
+    install-emacs
 
     if ! test -d ~/.config/emacs/; then
         git clone --depth 1 https://github.com/doomemacs/doomemacs ~/.config/emacs
@@ -269,7 +277,8 @@ install-emacs() {
         shfmt pipx tree-sitter clang-format \
         bash-language-server
 
-    manual_package_install "dasel" "https://github.com/TomWright/dasel/releases/latest/download/dasel_linux_amd64"
+    manual_package_install "dasel" \
+        "https://github.com/TomWright/dasel/releases/latest/download/dasel_linux_amd64"
 
     pipx install isort pipenv black \
         pyflakes nose pytest ruff ty \
@@ -288,6 +297,12 @@ install-vscode() {
 
 for command in "$@"; do
     case $1 in
+
+    init)
+        remove-packages
+        init
+        install-packages
+        ;;
 
     all)
         init
@@ -315,12 +330,6 @@ for command in "$@"; do
         install-vscode
         ;;
 
-    init)
-        remove-packages
-        init
-        install-packages
-        ;;
-
     dev)
         install-dev
         ;;
@@ -338,7 +347,7 @@ for command in "$@"; do
         ;;
 
     *)
-        info "${RED}Invalid input...${NC}"
+        warn "Invalid input..."
         info "Choose one of:
         ${LIGHTGREEN}init${NC}: Bootstrap new Fedora Environment.
         ${LIGHTGREEN}init-repos${NC}: Bootstrap useful repos.
@@ -353,4 +362,4 @@ for command in "$@"; do
     esac
 done
 
-info "${GREEN}Bootstrap complete!${NC}"
+info "Bootstrap complete!"
