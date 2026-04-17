@@ -108,7 +108,7 @@ init() {
 install_single_font() {
     local name="$1"
     local url="$2"
-    local grep_pattern="$3"
+    # local grep_pattern="$3"
     local tmp_file="/tmp/${name}.zip"
 
     info "Installing $name..."
