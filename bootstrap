@@ -113,35 +113,34 @@ install_single_font() {
 
     info "Installing $name..."
 
-    if ! fc-list | grep -qi "$grep_pattern"; then
+    if ! fc-list | grep -qi "$name"; then
         info "Downloading $name..."
         curl -o "$tmp_file" -L "$url"
-        unzip "$tmp_file" -d ~/.local/share/fonts/
+        unzip -o "$tmp_file" -d ~/.local/share/fonts/
         rm "$tmp_file"
     else
-        info "${MAGNETA}$name already installed, skipping.${NC}"
+        warn "$name already installed, skipping."
     fi
 }
 
 install-fonts() {
     mkdir -p ~/.local/share/fonts/
 
-    install_single_font "MapleMonoNF" \
+    install_single_font "Maple Mono" \
         "https://github.com/subframe7536/maple-font/releases/latest/download/MapleMono-NF-unhinted.zip" \
-        "maple"
+        "Maple Mono"
 
     install_single_font "mononoki" \
-        "https://github.com/madmalik/mononoki/releases/latest/download/mononoki.zip" \
-        "mononoki"
+        "https://github.com/madmalik/mononoki/releases/latest/download/mononoki.zip"
 
-    install_single_font "nerdfontsymbols" \
-        "https://github.com/ryanoasis/nerd-fonts/releases/latest/download/NerdFontsSymbolsOnly.zip" \
-        "symbols"
+    install_single_font "Symbols Nerd Font" \
+        "https://github.com/ryanoasis/nerd-fonts/releases/latest/download/NerdFontsSymbolsOnly.zip"
 
     fc-cache -vf ~/.local/share/fonts/
-    fc-list : family style | grep -i maple
-    fc-list : family style | grep -i mononoki
-    fc-list : family style | grep -i 'symbols nerd font'
+
+    fc-list : family style | grep -i "Maple Mono"
+    fc-list : family style | grep -i "mononoki"
+    fc-list : family style | grep -i "Symbols Nerd Font"
 }
 
 # =========================
