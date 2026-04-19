@@ -9,3 +9,4 @@
 (package! quickrun)
 ;; (package! pet)
 ;; (package! pyvenv)
+(package! org-modern)

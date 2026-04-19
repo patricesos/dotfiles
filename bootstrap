@@ -19,7 +19,6 @@ warn() { echo -e "${YELLOW}[WARN] $* ${NC}\n"; }
 #     echo -e "${RED}[ERROR]${NC} $*";
 #           exit 1}
 
-
 # =========================
 # Manual Packages Install
 # =========================
@@ -88,6 +87,7 @@ init() {
     sudo dnf copr enable -y varlad/zellij || true
     sudo dnf copr enable -y dejan/lazygit || true
     sudo dnf copr enable -y alternateved/keyd || true
+    sudo dnf copr enable sdegler/hyprland || true
 
     # Enable RPM Fusion
 
@@ -113,7 +113,7 @@ install_single_font() {
 
     info "Installing $name..."
 
-    if fc-list | grep -qi "$name"; then
+    if ! fc-list | grep -qi "$name"; then
         info "Downloading $name..."
         curl -o "$tmp_file" -L "$url"
         unzip -o "$tmp_file" -d ~/.local/share/fonts/

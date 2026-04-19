@@ -1,4 +1,4 @@
-;;; $Doomdir/config.rl -*- lexical-binding: t; -*-
+;;; $Doomdir/config.el -*- lexical-binding: t; -*-
 
 ;; (setq user-full-name "John Doe"
 ;;       user-mail-address "john@doe.com")
@@ -10,8 +10,8 @@
 ;; - `doom-serif-font' -- for the `fixed-pitch-serif' face
 
 
-;; (toggle-word-wrap 1)
-;; (setq toggle-truncate-lines 1)
+(load! "keymap.el")
+
 (global-visual-line-mode t)
 (visual-line-mode t)
 (setq-default word-wrap t)
@@ -20,18 +20,33 @@
 (add-to-list 'default-frame-alist '(fullscreen . maximized))
 
 
-(load! "keymap.el")
 
 (setq doom-font (font-spec :family "Maple Mono NF" :size 16 :weight 'semi-light)
       doom-variable-pitch-font (font-spec :family "Maple Mono NF" :size 13))
 
 (setq doom-theme 'doom-monokai-classic)
+                                        ; (add-to-list 'custom-theme-load-path "~/.config/doom/")
+                                        ; (load-theme 'gruber-darker)
+
+(setq fancy-splash-image (file-name-concat doom-user-dir "splash.xpm"))
+;; (setq +dashboard-functions '(+dashboard-widget-banner))
 (setq display-line-numbers-type 'relative)
 
+
+
+;; Org-mode
 (setq org-directory "~/org/")
+;;
+;; Option 1: Per buffer
+;; (add-hook 'org-mode-hook #'org-modern-mode)
+;; (add-hook 'org-agenda-finalize-hook #'org-modern-agenda)
+
+;; (with-eval-after-load 'org (global-org-modern-mode))
+
+
+;; projectile
 (setq projectile-project-search-path '("~/code"))
 (setq projectile-cleanup-known-projects nil)
-
 
 ;; https://www.alcarney.me/blog/2024/local-llms-with-ollama-and-gptel/
 ;;
