@@ -51,7 +51,7 @@
 ;; (load-theme 'zenburn)
 (setq doom-theme 'doom-monokai-classic)
 
-(setq fancy-splash-image (file-name-concat doom-user-dir "splash.png"))
+(setq fancy-splash-image (file-name-concat doom-user-dir "assets/splash.png"))
 ;; (setq +dashboard-functions '(+dashboard-widget-banner))
 ;; (setq display-line-numbers-type 'relative)
 
