@@ -274,16 +274,16 @@ install-emacs() {
 
   sudo dnf in -y emacs pandoc shellcheck \
     shfmt pipx tree-sitter clang-format \
-    bash-language-server
+    bash-language-server python3-pip automake \
+    libpng-devel make poppler-devel \
+    poppler-glib-devel zlib-devel pkgconf
 
   manual_package_install "dasel" \
     "https://github.com/TomWright/dasel/releases/latest/download/dasel_linux_amd64"
 
   pipx install isort pipenv black \
     pyflakes nose pytest ruff ty \
-    ruff-lsp python3-pip automake gcc \
-    libpng-devel make poppler-devel \
-    poppler-glib-devel zlib-devel pkgconf
+    ruff-lsp
 }
 
 install-vscode() {
