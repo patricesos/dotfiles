@@ -1,21 +1,24 @@
 ;;; $Doomdir/config.el -*- lexical-binding: t; -*-
 
+;; User
 (setq user-full-name "Patrice Gnimdou"
       user-mail-address "patricesos7@gmail.com")
 
-;; - `doom-symbol-font' -- for symbols
-;; - `doom-serif-font' -- for the `fixed-pitch-serif' face
+;; Load custom lisp files
+(load! "keymap.el")
 
 ;; Font settings
 (setq doom-font (font-spec :family "Maple Mono NF" :size 16)
       doom-variable-pitch-font (font-spec :family "Maple Mono NF" :size 13)
       doom-big-font (font-spec :family "Maple Mono NF" :size 20)
-                                        ; doom-serif-font (font-spec :family "" :size 18)
+      ;; doom-symbol-font(font-spec :family "")
+      ;; doom-serif-font (font-spec :family "" :size 18)
       )
 
-(load! "keymap.el")
-
+;; Disable paren highlight
 (show-paren-mode t)
+(menu-bar-mode 1)
+(tab-bar-mode 1)
 
 ;; Highlight tabulations
 (setq-default highlight-tabs t)
@@ -33,6 +36,7 @@
 (visual-line-mode t)
 
 ;; Line display
+(setq display-line-numbers-type 'visual)
 (setq-default display-line-numbers-width 3)
 (setq-default display-line-numbers-widen t)
 (setq highlight-nonselected-windows nil)
@@ -42,18 +46,16 @@
 (setq resize-mini-windows nil)
 
 ;; Emacs frame settings
-;; (add-hook 'window-setup-hook 'toggle-frame-maximized t)
 (add-to-list 'default-frame-alist '(fullscreen . maximized))
+;; (add-hook 'window-setup-hook 'toggle-frame-maximized t)
 
 ;; Theme settings and look
+(setq doom-theme 'doom-molokai) ;; doom-molokai doom-material doom-peacock
+(setq fancy-splash-image (file-name-concat doom-user-dir "assets/splash.png"))
+;; (setq +dashboard-functions '(+dashboard-widget-banner))
 (setq custom-safe-themes t)
 ;; (add-to-list 'custom-theme-load-path "~/.config/doom/themes/")
 ;; (load-theme 'zenburn)
-(setq doom-theme 'doom-monokai-classic)
-
-(setq fancy-splash-image (file-name-concat doom-user-dir "assets/splash.png"))
-;; (setq +dashboard-functions '(+dashboard-widget-banner))
-;; (setq display-line-numbers-type 'relative)
 
 ;; Org-mode
 (setq org-directory "~/org/")
