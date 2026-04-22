@@ -227,7 +227,7 @@ install-packages() {
 }
 
 install-keyd() {
-    sudo dnf in -y keyd
+    sudo dnf install -y keyd
     sudo systemctl enable keyd
 
     echo -e "[ids]\n*\n[main]\ncapslock = escape\nescape = capslock\n" | sudo tee /etc/keyd/default.conf >/dev/null
@@ -272,11 +272,12 @@ install-doom() {
 install-emacs() {
     info "Installing Emacs and dependencies..."
 
-    sudo dnf in -y emacs pandoc shellcheck \
+    sudo dnf install -y emacs pandoc shellcheck \
         shfmt pipx tree-sitter clang-format \
         bash-language-server python3-pip automake \
-        libpng-devel make poppler-devel \
-        poppler-glib-devel zlib-devel pkgconf
+        libpng-devel make poppler-devel cmake uv \
+        poppler-glib-devel zlib-devel pkgconf \
+        libvterm libtool
 
     manual_package_install "dasel" \
         "https://github.com/TomWright/dasel/releases/latest/download/dasel_linux_amd64"
@@ -284,6 +285,13 @@ install-emacs() {
     pipx install isort pipenv black \
         pyflakes nose pytest ruff ty \
         ruff-lsp
+}
+
+install-virt() {
+    info "Installing Virtualisation Tools"
+
+    sudo dnf install -y libvirt qemu-kvm \
+        virt-manager
 }
 
 install-vscode() {
@@ -314,8 +322,11 @@ for command in "$@"; do
         install-docker
         install-vscode
         install-keyd
-        install-emacs
         install-doom
+        ;;
+
+    virt)
+        install-virt
         ;;
 
     keyd)

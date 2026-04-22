@@ -16,3 +16,4 @@
 (package! pdf-view-restore)
 (package! fountain-mode)
 (package! writeroom-mode)
+(package! emojify)
