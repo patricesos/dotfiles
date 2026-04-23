@@ -366,9 +366,15 @@ variables. See also `siege--derive-delimiter'."
 
 (define-minor-mode siege-mode
   "Siege minor mode."
-  nil
-  " siege" siege-mode-map
+  :lighter " siege"
+  :keymap siege-mode-map
   :global nil)
+
+; (define-minor-mode siege-mode
+;   "Siege minor mode."
+;   nil
+;   " siege" siege-mode-map
+;   :global nil)
 
 (provide 'siege-mode)
 ;;; siege-mode.el ends here

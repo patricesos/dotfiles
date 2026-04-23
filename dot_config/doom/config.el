@@ -51,7 +51,7 @@
 
 ;; Theme settings and look
 (setq doom-theme 'doom-molokai) ;; doom-molokai doom-material doom-peacock
-(setq fancy-splash-image (file-name-concat doom-user-dir "assets/splash.png"))
+(setq fancy-splash-image (file-name-concat doom-user-dir "assets/hole.png"))
 ;; (setq +dashboard-functions '(+dashboard-widget-banner))
 (setq custom-safe-themes t)
 ;; (add-to-list 'custom-theme-load-path "~/.config/doom/themes/")

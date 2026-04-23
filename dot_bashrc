@@ -51,7 +51,8 @@ gh-repo() {
   gh repo create --private "$@" --source . --remote origin
 }
 
-alias emacs="emacsclient -nca 'emacs'"
+alias emacs="emacsclient -ca 'emacs'"
+# alias emacs="emacsclient -nca 'emacs'"
 alias doom-readd="chezmoi re-add ~/.config/doom/"
 
 # Eza
