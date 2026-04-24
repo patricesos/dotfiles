@@ -90,8 +90,8 @@
 
 ;; (add-to-list 'load-path (expand-file-name "/path/to/origami.el/"))
 ;; (require 'origami)
-(load! "packages/siege-mode.el")
-;; (require 'siege-mode )
+; (load! "packages/siege-mode.el")
+; (require 'siege-mode )
 
 
 ;; (use-package pdf-view-restore

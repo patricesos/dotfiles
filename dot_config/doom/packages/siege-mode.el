@@ -5,7 +5,7 @@
 ;; Author: tslil clingman <tslil@posteo.de>
 ;; Version: 2.2
 ;; Package-Version: 20180710.1841
-;; Package-Requires: ((emacs "24.4"))
+;; Package-Requires: ((emacs "26.1"))
 ;; URL: https://github.com/tslilc/siege-mode
 ;; Keywords: convenience region wrap
 
@@ -52,6 +52,11 @@
 (require 'subr-x)
 (require 'cl-lib)
 
+(defgroup siege-mode nil
+  "Surround region with smart delimiters interactively."
+  :group 'convenience
+  :prefix "siege-")
+
 (defcustom siege-transform-regexs '(("({" . "})")
                                     ("(" . ")")
                                     ("\\[" . "]")
@@ -79,19 +84,19 @@ as regex alternative in order and so it is recommended that the last element \
 is a catch-all for generic tokenization. By default it is \\Sw to break on any \
 non-word tokens. See `siege--tokenize-non-block' for details on tokenisation."
   :group 'siege-mode
-  :type '(list string))
+  :type '(repeat string))
 
 (defcustom siege-block-open ?{
   "Character signifying the start of an atomic block in delimiter input. \
 Such blocks will appear verbatim in the derived delimiter."
   :group 'siege-mode
-  :type 'char)
+  :type 'character)
 
 (defcustom siege-block-close ?}
   "Character signifying the end of an atomic block in delimiter input. \
 Such blocks will appear verbatim in the derived delimiter."
   :group 'siege-mode
-  :type 'char)
+  :type 'character)
 
 (defcustom siege-block-prefix "\\\\begin{\\|{"
   "Regex matching the start of an atomic block in the delimiter input, \
@@ -107,13 +112,13 @@ in `siege-transform-regexs'."
   "Whether siege-mode should default to deriving the matching delimiter \
 from the input or reproduce it on both sides verbatim."
   :group 'siege-mode
-  :type 'bool)
+  :type 'boolean)
 
 (defcustom siege-default-end-on-space nil
   "Whether siege-mode should, by default, interpret a space entered in the \
 delimiter as marking the end of input (like return)."
   :group 'siege-mode
-  :type 'bool)
+  :type 'boolean)
 
 (defface siege-preview-face '((t :inherit (warning)))
   "Face in which to render delimiter previews for Siege mode."
@@ -143,47 +148,47 @@ the input stream. See `siege-default-end-on-space'."
                       (if siege--end-on-space "part of" "ends")))
 
 (defun siege--handle-space ()
+  "Handle spc input in the minibuffer according to session toggle.
+See also `siege-default-end-on-space'."
   (interactive)
-  "Handle spc input in the minibuffer according to session toggle. See also \
-`siege-default-end-on-space'."
   (if siege--end-on-space (exit-minibuffer) (insert " ")))
 
 (defvar siege-minibuffer-map
-  (let ((map minibuffer-local-map))
-    (define-key map (kbd "SPC") 'siege--handle-space)
-    (define-key map (kbd "C-c a") 'siege--toggle-derive)
-    (define-key map (kbd "C-c s") 'siege--toggle-space)
-    map))
+  (let ((map (make-sparse-keymap)))
+    (set-keymap-parent map minibuffer-local-map)
+    (define-key map (kbd "SPC") #'siege--handle-space)
+    (define-key map (kbd "C-c a") #'siege--toggle-derive)
+    (define-key map (kbd "C-c s") #'siege--toggle-space)
+    map)
+  "Keymap used in the siege minibuffer prompt.")
 
 (defun siege--extract-next-block (string start open-chr close-chr
                                          prefix-match)
-  "Given a STRING and a START index, find the next block \
-delimeted by balanced pairs of OPEN-CHR CLOSE-CHR, optionally \
-prefixed by anything matching PREFIX-MATCH.
-
-PREFIX-MATCH is assumed to match against OPEN-CHR. Returns the list\
- (prefix-start block-start block-end)"
-  (let ((pos start) pre beg end (count 1) curr )
+  "Find the next block in STRING starting from START.
+The block is delimited by balanced pairs of OPEN-CHR and CLOSE-CHR,
+optionally prefixed by anything matching PREFIX-MATCH.
+PREFIX-MATCH is assumed to match against OPEN-CHR.
+Returns the list (prefix-start block-start block-end)."
+  (let ((pos start) pre beg end (count 1) curr)
     (save-match-data
       (when (setq pre (string-match prefix-match string start))
         (setq beg (1- (match-end 0))
               pos (match-end 0))
         (while (and (not end) (< pos (length string)))
           (setq curr (aref string pos))
-          (when (char-equal curr open-chr) (incf count))
-          (when (char-equal curr close-chr) (decf count))
-          (incf pos)
+          (when (char-equal curr open-chr)  (cl-incf count))
+          (when (char-equal curr close-chr) (cl-decf count))
+          (cl-incf pos)
           (when (= count 0) (setq end pos)))))
     (when end (list pre beg end))))
 
-(defun siege--tokenize-blocks (string open-char close-char
-                                      prefix-match)
-  "Given a STRING, produce a list of pairs (type . substring). Type is one of \
-'block or 'text. Blocks are substrings delimeted by balanced pairs of \
-OPEN-CHAR and CLOSE-CHAR, text is everything else. The list is in reverse \
-order of occurence, with the exception of block prefixes (see \
-`siege--extract-next-block' and PREFIX-MATCH) whose relative positioning \
-to the blocks the blocks they abut is preserved."
+(defun siege--tokenize-blocks (string open-char close-char prefix-match)
+  "Produce a list of (TYPE . SUBSTRING) pairs from STRING.
+TYPE is one of `block' or `text'.  Blocks are substrings delimited by
+balanced pairs of OPEN-CHAR and CLOSE-CHAR; text is everything else.
+The list is in reverse order of occurrence, except that block prefixes
+(see `siege--extract-next-block' and PREFIX-MATCH) preserve their
+relative positioning to the blocks they abut."
   (let (result (start 0) block)
     (while start
       (if (setq block (siege--extract-next-block
@@ -202,15 +207,14 @@ to the blocks the blocks they abut is preserved."
                                  string (nth 0 block) (nth 1 block)))
                     result))
             (setq start (nth 2 block)))
-        (if (/= start (length string))
-            (push (cons 'text (substring string start)) result))
+        (when (/= start (length string))
+          (push (cons 'text (substring string start)) result))
         (setq start nil)))
     result))
 
 (defun siege--tokenize-non-block (string boundary-regex)
-  "Given a STRING, split the string on anything matching \
-BOUNDARY-REGEX and collate the results in reverse order. \
-Splitting tokens appear in output."
+  "Split STRING on anything matching BOUNDARY-REGEX.
+Collate results in reverse order; splitting tokens appear in output."
   (let (result (start 0))
     (save-match-data
       (while start
@@ -233,41 +237,39 @@ Splitting tokens appear in output."
                                 block-open block-close
                                 block-prefix-match
                                 boundary-regex transforms)
-  "Given a STRING, BLOCK-OPEN and BLOCK-CLOSE characters, and a \
-BLOCK-PREFIX-MATCH regex matching against BLOCK-OPEN, this function first \
-tokenizes the string into blocks and text (see `siege--tokenize-blocks'). The \
-text is then further tokenized on boundaries given by BOUNDARY-REGEX (see \
-`siege--tokenize-non-block') and finally all text tokens (not blocks) are \
-transformed as follows and collated to generate the output.
-
-TRANSFORMS is a list of pairs of strings (regex . subst) whics is applied \
-sequentially to every text token."
+  "Derive a matching delimiter from STRING.
+BLOCK-OPEN and BLOCK-CLOSE are the block delimiter characters;
+BLOCK-PREFIX-MATCH is a regex matching against BLOCK-OPEN.
+The function first tokenizes STRING into blocks and text via
+`siege--tokenize-blocks', then further tokenizes text tokens on
+BOUNDARY-REGEX via `siege--tokenize-non-block', and finally applies
+TRANSFORMS  a list of (REGEX . SUBST) pairs  sequentially to every
+text token.  The results are concatenated and returned."
   (apply
    #'concat
    (mapcar
-    #'(lambda (pair)
-        (if (eq 'block (car pair)) (cdr pair)
-          (apply
-           #'concat
-           (mapcar
-            #'(lambda (str)
-                (let ((res str))
-                  (dolist (tr transforms res)
-                    (setq
-                     res
-                     (replace-regexp-in-string (car tr) (cdr tr) res)))))
-            (siege--tokenize-non-block (cdr pair) boundary-regex)))))
+    (lambda (pair)
+      (if (eq 'block (car pair))
+          (cdr pair)
+        (apply
+         #'concat
+         (mapcar
+          (lambda (str)
+            (let ((res str))
+              (dolist (tr transforms res)
+                (setq res
+                      (replace-regexp-in-string (car tr) (cdr tr) res)))))
+          (siege--tokenize-non-block (cdr pair) boundary-regex)))))
     (siege--tokenize-blocks string block-open block-close
                             block-prefix-match))))
 
 (defun siege--make-boundary-regex-from-list (list)
-  "LIST is a list of strings which are concatenated, separated in the output \
-by regex optional match strings (\\|)"
-  (let ((res "")) (dolist (r list (substring res 0 (- (length res) 2)))
-                    (setq res (concat res r "\\|")))))
+  "Concatenate LIST of regex strings separated by the regex alternation operator."
+  (mapconcat #'identity list "\\|"))
 
 (defun siege--matching-pair (input)
-  "Generate a matching delimiter from INPUT according to all siege-* variables."
+  "Generate a matching delimiter pair from INPUT.
+Returns a cons cell (LEFT . RIGHT) according to siege-* variables."
   (if siege--derive
       (let ((output (siege--derive-delimiter
                      input siege-block-open siege-block-close
@@ -302,21 +304,20 @@ by regex optional match strings (\\|)"
     (remove-overlays (buffer-end -1) (buffer-end 1) 'sieging t)))
 
 (defun siege--interactive (initial &optional default)
-  "Use to enter the interactive delimiter building for region.
-
-INITIAL is the string present in the minibuffer, which is not necessarily\
-the default value."
+  "Enter the interactive delimiter-building session for the active region.
+INITIAL is the string pre-filled in the minibuffer.
+DEFAULT is the fallback value when the user submits an empty string."
   (barf-if-buffer-read-only)
   (setq siege--selected-window (selected-window)
-        siege--derive siege-default-derive
-        siege--end-on-space siege-default-end-on-space
-        siege--boundary (siege--make-boundary-regex-from-list
-                         siege-boundary-list))
-  (let* ((start (region-beginning))
-         (end (region-end))
+        siege--derive           siege-default-derive
+        siege--end-on-space     siege-default-end-on-space
+        siege--boundary         (siege--make-boundary-regex-from-list
+                                 siege-boundary-list))
+  (let* ((start  (region-beginning))
+         (end    (region-end))
          (result (minibuffer-with-setup-hook
                      (lambda ()
-                       (add-hook 'post-command-hook #'siege--preview-input nil t)
+                       (add-hook 'post-command-hook  #'siege--preview-input nil t)
                        (add-hook 'minibuffer-exit-hook #'siege--preview-end nil t)
                        (siege--preview-input))
                    (read-from-minibuffer
@@ -335,46 +336,44 @@ the default value."
     (insert (cdr pair))))
 
 (defun siege--self-insert (arg)
-  "This function replaces `self-insert-command'.
-
-When the region is active, all input is redirected to the \
-minibuffer and treated as a delimiter for the region. By default \
-the input is used as the left delimiter from which the right one \
-is derived according to all siege-* variables. See also \
-`siege--derive-delimiter'. ARG is ignored.
-
-If the region is not active then ARG is passed on to `self-insert-command'."
+  "Replacement for `self-insert-command' used by `siege-mode'.
+When the region is active, redirect input to the minibuffer and treat it
+as a delimiter for the region.  By default the input is used as the left
+delimiter from which the right one is derived according to all siege-*
+variables (see `siege--derive-delimiter').  ARG is forwarded to
+`self-insert-command' when the region is inactive."
   (interactive "p")
-  (if (and (not (minibufferp)) (region-active-p) (characterp last-input-event))
+  (if (and (not (minibufferp))
+           (region-active-p)
+           (characterp last-input-event))
       (siege--interactive (char-to-string last-input-event))
     (self-insert-command arg)))
 
 (defun siege-explicit-call ()
-  "When the region is active, all input is redirected to the minibuffer and \
-treated as a delimiter for the region. By default the input is used as the left\
- delimiter from which the right one is derived according to all siege-* \
-variables. See also `siege--derive-delimiter'."
+  "Surround the active region with delimiters entered in the minibuffer.
+The input is used as the left delimiter from which the right one is
+derived according to all siege-* variables.
+See also `siege--derive-delimiter'."
   (interactive)
-  (if (and (not (minibufferp)) (region-active-p))
-      (siege--interactive "" (car siege--hist))))
+  (when (and (not (minibufferp)) (region-active-p))
+    (siege--interactive "" (car siege--hist))))
 
 (defvar siege-mode-map
   (let ((map (make-sparse-keymap)))
-    (define-key map [remap self-insert-command] 'siege--self-insert)
-    (define-key map (kbd "M-s M-s") 'siege-explicit-call)
-    map))
+    (define-key map [remap self-insert-command] #'siege--self-insert)
+    (define-key map (kbd "M-s M-s") #'siege-explicit-call)
+    map)
+  "Keymap for `siege-mode'.")
 
+;;;###autoload
 (define-minor-mode siege-mode
-  "Siege minor mode."
+  "Minor mode to surround the active region with smart delimiter pairs.
+When the region is active, most self-inserting input is redirected to
+the minibuffer where it is treated as the left delimiter; the matching
+right delimiter is derived automatically."
   :lighter " siege"
   :keymap siege-mode-map
-  :global nil)
-
-; (define-minor-mode siege-mode
-;   "Siege minor mode."
-;   nil
-;   " siege" siege-mode-map
-;   :global nil)
+  :group 'siege-mode)
 
 (provide 'siege-mode)
 ;;; siege-mode.el ends here
