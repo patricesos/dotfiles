@@ -51,9 +51,9 @@ gh-repo() {
   gh repo create --private "$@" --source . --remote origin
 }
 
-alias emacs="emacsclient -ca 'emacs'"
+alias emacs="emacsclient -ca \"\""
 # alias emacs="emacsclient -nca 'emacs'"
-alias doom-readd="chezmoi re-add ~/.config/doom/"
+alias doom-readd="chezmoi add ~/.config/doom/"
 
 # Eza
 alias ll="eza -axl --icons=always --group-directories-first"
@@ -85,9 +85,6 @@ shortcut() {
   sudo cp $1 /usr/share/applications/
 }
 
-eval "$(zoxide init bash)"
-eval "$(starship init bash)"
-
 # bun
 export BUN_INSTALL="$HOME/.bun"
 export PATH=$BUN_INSTALL/bin:$PATH
@@ -100,3 +97,6 @@ alias gaffer=~/gaffer-linux
 
 # OLLAMA
 export OLLAMA_MODELS=~/.ollama/models
+
+eval "$(zoxide init bash)"
+eval "$(starship init bash)"

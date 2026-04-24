@@ -24,87 +24,87 @@ warn() { echo -e "${YELLOW}[WARN] $* ${NC}\n"; }
 # =========================
 
 command_exists() {
-    command -v "$1" &>/dev/null
+  command -v "$1" &>/dev/null
 }
 
 manual_package_install() {
-    local package="$1"
-    # local stem="${package%%.*}"
-    local url="$2"
+  local package="$1"
+  # local stem="${package%%.*}"
+  local url="$2"
 
-    info "Installing ${package}..."
+  info "Installing ${package}..."
 
-    mkdir -p ~/.local/bin/
+  mkdir -p ~/.local/bin/
 
-    if ! command_exists "$package"; then
-        local tmp_dir
-        tmp_dir=$(mktemp -d)
+  if ! command_exists "$package"; then
+    local tmp_dir
+    tmp_dir=$(mktemp -d)
 
-        pushd "$tmp_dir" >/dev/null
+    pushd "$tmp_dir" >/dev/null
 
-        curl -L -o "$package" \
-            "$url"
+    curl -L -o "$package" \
+      "$url"
 
-        type=$(file -b "$package")
+    type=$(file -b "$package")
 
-        if [[ "$type" == *"Zip archive"* ]]; then
-            echo "ZIP"
-            unzip "$package"
+    if [[ "$type" == *"Zip archive"* ]]; then
+      echo "ZIP"
+      unzip "$package"
 
-        elif [[ "$type" == *"tar archive"* ]]; then
-            echo "TAR"
-            tar -xzf "$package"
+    elif [[ "$type" == *"tar archive"* ]]; then
+      echo "TAR"
+      tar -xzf "$package"
 
-        elif [[ "$type" == *"gzip compressed"* ]]; then
-            echo "TAR.GZ"
-            tar -xzf "$package"
-        else
-            echo "UNKNOWN"
-        fi
-
-        chmod a+x "$package"
-        cp "$package" ~/.local/bin/
-
-        popd >/dev/null
-
-        rm -rf "$tmp_dir"
+    elif [[ "$type" == *"gzip compressed"* ]]; then
+      echo "TAR.GZ"
+      tar -xzf "$package"
     else
-        warn "${package} already installed, skipping."
+      echo "UNKNOWN"
     fi
+
+    chmod a+x "$package"
+    cp "$package" ~/.local/bin/
+
+    popd >/dev/null
+
+    rm -rf "$tmp_dir"
+  else
+    warn "${package} already installed, skipping."
+  fi
 }
 
 init() {
-    sudo dnf -y install dnf-plugins-core \
-        curl gawk wget coreutils wget
+  sudo dnf -y install dnf-plugins-core \
+    curl gawk wget coreutils wget
 
-    manual_package_install "starship" \
-        "https://github.com/starship/starship/releases/latest/download/starship-x86_64-unknown-linux-gnu.tar.gz"
+  manual_package_install "starship" \
+    "https://github.com/starship/starship/releases/latest/download/starship-x86_64-unknown-linux-gnu.tar.gz"
 
-    manual_package_install "eza" \
-        "https://github.com/eza-community/eza/releases/latest/download/eza_x86_64-unknown-linux-gnu.tar.gz"
+  manual_package_install "eza" \
+    "https://github.com/eza-community/eza/releases/latest/download/eza_x86_64-unknown-linux-gnu.tar.gz"
 
-    info "Enabling COPR repositories..."
+  info "Enabling COPR repositories..."
 
-    sudo dnf copr enable -y varlad/zellij || true
-    sudo dnf copr enable -y dejan/lazygit || true
-    sudo dnf copr enable -y alternateved/keyd || true
-    sudo dnf copr enable -y sdegler/hyprland || true
+  sudo dnf copr enable -y varlad/zellij || true
+  sudo dnf copr enable -y dejan/lazygit || true
+  sudo dnf copr enable -y alternateved/keyd || true
+  sudo dnf copr enable -y sdegler/hyprland || true
 
-    # Enable RPM Fusion
+  # Enable RPM Fusion
 
-    info "Adding RPM Fusion repositories..."
-    FEDORA_VERSION=$(rpm -E %fedora)
+  info "Adding RPM Fusion repositories..."
+  FEDORA_VERSION=$(rpm -E %fedora)
 
-    if ! rpm -q rpmfusion-free-release &>/dev/null; then
-        sudo dnf install -y \
-            https://mirrors.rpmfusion.org/free/fedora/rpmfusion-free-release-"${FEDORA_VERSION}".noarch.rpm \
-            https://mirrors.rpmfusion.org/nonfree/fedora/rpmfusion-nonfree-release-"${FEDORA_VERSION}".noarch.rpm
-    fi
-
-    info "Installing Minimun Viable Packages."
+  if ! rpm -q rpmfusion-free-release &>/dev/null; then
     sudo dnf install -y \
-        kitty btop fastfetch ncdu bat fd \
-        zoxide dust chafa fish
+      https://mirrors.rpmfusion.org/free/fedora/rpmfusion-free-release-"${FEDORA_VERSION}".noarch.rpm \
+      https://mirrors.rpmfusion.org/nonfree/fedora/rpmfusion-nonfree-release-"${FEDORA_VERSION}".noarch.rpm
+  fi
+
+  info "Installing Minimun Viable Packages."
+  sudo dnf install -y \
+    kitty btop fastfetch ncdu bat fd \
+    zoxide dust chafa fish
 }
 
 # =========================
@@ -112,40 +112,40 @@ init() {
 # =========================
 
 install_single_font() {
-    local name="$1"
-    local url="$2"
-    # local grep_pattern="$3"
-    local tmp_file="/tmp/${name}.zip"
+  local name="$1"
+  local url="$2"
+  # local grep_pattern="$3"
+  local tmp_file="/tmp/${name}.zip"
 
-    info "Installing $name..."
+  info "Installing $name..."
 
-    if ! fc-list | grep -qi "$name"; then
-        info "Downloading $name..."
-        curl -o "$tmp_file" -L "$url"
-        unzip -o "$tmp_file" -d ~/.local/share/fonts/
-        rm "$tmp_file"
-    else
-        warn "$name already installed, skipping."
-    fi
+  if ! fc-list | grep -qi "$name"; then
+    info "Downloading $name..."
+    curl -o "$tmp_file" -L "$url"
+    unzip -o "$tmp_file" -d ~/.local/share/fonts/
+    rm "$tmp_file"
+  else
+    warn "$name already installed, skipping."
+  fi
 }
 
 install-fonts() {
-    mkdir -p ~/.local/share/fonts/
+  mkdir -p ~/.local/share/fonts/
 
-    install_single_font "Maple Mono" \
-        "https://github.com/subframe7536/maple-font/releases/latest/download/MapleMono-NF-unhinted.zip"
+  install_single_font "Maple Mono" \
+    "https://github.com/subframe7536/maple-font/releases/latest/download/MapleMono-NF-unhinted.zip"
 
-    install_single_font "mononoki" \
-        "https://github.com/madmalik/mononoki/releases/latest/download/mononoki.zip"
+  install_single_font "mononoki" \
+    "https://github.com/madmalik/mononoki/releases/latest/download/mononoki.zip"
 
-    install_single_font "Symbols Nerd Font" \
-        "https://github.com/ryanoasis/nerd-fonts/releases/latest/download/NerdFontsSymbolsOnly.zip"
+  install_single_font "Symbols Nerd Font" \
+    "https://github.com/ryanoasis/nerd-fonts/releases/latest/download/NerdFontsSymbolsOnly.zip"
 
-    fc-cache -vf ~/.local/share/fonts/
+  fc-cache -vf ~/.local/share/fonts/
 
-    # fc-list : family style | grep -i "Maple Mono"
-    # fc-list : family style | grep -i "mononoki"
-    # fc-list : family style | grep -i "Symbols Nerd Font"
+  # fc-list : family style | grep -i "Maple Mono"
+  # fc-list : family style | grep -i "mononoki"
+  # fc-list : family style | grep -i "Symbols Nerd Font"
 }
 
 # =========================
@@ -153,30 +153,30 @@ install-fonts() {
 # =========================
 
 install-docker() {
-    info "Installing Docker..."
+  info "Installing Docker..."
 
-    sudo dnf remove -y docker docker-client \
-        docker-client-latest docker-common \
-        docker-latest docker-latest-inforotate docker-logrotate \
-        docker-selinux docker-engine-selinux docker-engine
+  sudo dnf remove -y docker docker-client \
+    docker-client-latest docker-common \
+    docker-latest docker-latest-inforotate docker-logrotate \
+    docker-selinux docker-engine-selinux docker-engine
 
-    sudo dnf-3 config-manager --add-repo \
-        https://download.docker.com/linux/fedora/docker-ce.repo
+  sudo dnf-3 config-manager --add-repo \
+    https://download.docker.com/linux/fedora/docker-ce.repo
 
-    sudo dnf install -y \
-        docker-ce docker-ce-cli \
-        containerd.io docker-buildx-plugin \
-        docker-compose-plugin
+  sudo dnf install -y \
+    docker-ce docker-ce-cli \
+    containerd.io docker-buildx-plugin \
+    docker-compose-plugin
 
-    sudo systemctl enable --now docker
-    sudo systemctl start docker
+  sudo systemctl enable --now docker
+  sudo systemctl start docker
 
-    # sudo groupadd docker
-    # sudo usermod -aG docker $USER
-    # newgrp docker
+  sudo groupadd docker
+  sudo usermod -aG docker $USER
+  newgrp docker
 
-    info "Testing Docker..."
-    sudo docker run hello-world
+  info "Testing Docker..."
+  sudo docker run hello-world
 
 }
 
@@ -185,13 +185,13 @@ install-docker() {
 # =========================
 
 install-codecs() {
-    info "${GREEN}Installing Media Codecs... ${NC}"
+  info "${GREEN}Installing Media Codecs... ${NC}"
 
-    sudo dnf install -y \
-        ffmpeg ffmpeg-libs --allowerasing
+  sudo dnf install -y \
+    ffmpeg ffmpeg-libs --allowerasing
 
-    sudo dnf group install -y \
-        sound-and-video
+  sudo dnf group install -y \
+    sound-and-video
 }
 
 # =========================
@@ -199,20 +199,20 @@ install-codecs() {
 # =========================
 
 remove-packages() {
-    warn "Uninstalling packages..."
+  warn "Uninstalling packages..."
 
-    pkgs=(plasma-discover dragon elisa-player)
-    installed=()
+  pkgs=(plasma-discover dragon elisa-player)
+  installed=()
 
-    for p in "${pkgs[@]}"; do rpm -q "$p" &>/dev/null && installed+=("$p"); done
+  for p in "${pkgs[@]}"; do rpm -q "$p" &>/dev/null && installed+=("$p"); done
 
-    [ ${#installed[@]} -gt 0 ] && sudo dnf rm -y "${installed[@]}"
+  [ ${#installed[@]} -gt 0 ] && sudo dnf rm -y "${installed[@]}"
 
-    sudo dnf rm -y \
-        plasma-discover dragon elisa
+  sudo dnf rm -y \
+    plasma-discover dragon elisa
 
-    sudo dnf group remove -y \
-        kde-apps kde-pim kde-media
+  sudo dnf group remove -y \
+    kde-apps kde-pim kde-media
 }
 
 # =========================
@@ -220,146 +220,146 @@ remove-packages() {
 # =========================
 
 install-packages() {
-    info "Installing packages..."
+  info "Installing packages..."
 
-    sudo dnf install -y \
-        kitty qbittorrent obs-studio mpv
+  sudo dnf install -y \
+    kitty qbittorrent obs-studio mpv
 }
 
 install-keyd() {
-    sudo dnf install -y keyd
-    sudo systemctl enable keyd
+  sudo dnf install -y keyd
+  sudo systemctl enable keyd
 
-    echo -e "[ids]\n*\n[main]\ncapslock = escape\nescape = capslock\n" | sudo tee /etc/keyd/default.conf >/dev/null
+  echo -e "[ids]\n*\n[main]\ncapslock = escape\nescape = capslock\n" | sudo tee /etc/keyd/default.conf >/dev/null
 
-    sudo systemctl restart keyd
+  sudo systemctl restart keyd
 }
 
 install-music() {
-    info "Installing Music packages..."
+  info "Installing Music packages..."
 
-    sudo dnf install -y \
-        qsynth vmpk strawberry
+  sudo dnf install -y \
+    qsynth vmpk strawberry
 }
 
 install-dev() {
-    info "Initializing Dev Environment..."
+  info "Initializing Dev Environment..."
 
-    manual_package_install "neovide" \
-        "https://github.com/neovide/neovide/releases/latest/download/neovide.AppImage"
+  manual_package_install "neovide" \
+    "https://github.com/neovide/neovide/releases/latest/download/neovide.AppImage"
 
-    sudo dnf install -y clang-format \
-        neovim lazygit tmux uv cmake gcc \
-        tmux zellij make pipx
+  sudo dnf install -y clang-format \
+    neovim lazygit tmux uv cmake gcc \
+    tmux zellij make pipx
 
-    sudo dnf group install -y \
-        c-development development-tools
+  sudo dnf group install -y \
+    c-development development-tools
 }
 
 install-doom() {
-    info "Installing Doom Emacs..."
+  info "Installing Doom Emacs..."
 
-    install-emacs
+  install-emacs
 
-    if ! test -d ~/.config/emacs/; then
-        git clone --depth 1 https://github.com/doomemacs/doomemacs ~/.config/emacs
-        ~/.config/emacs/bin/doom install
-    else
-        warn "Doom Emacs already installed, skipping."
-    fi
+  if ! test -d ~/.config/emacs/; then
+    git clone --depth 1 https://github.com/doomemacs/doomemacs ~/.config/emacs
+    ~/.config/emacs/bin/doom install
+  else
+    warn "Doom Emacs already installed, skipping."
+  fi
 }
 
 install-emacs() {
-    info "Installing Emacs and dependencies..."
+  info "Installing Emacs and dependencies..."
 
-    sudo dnf install -y emacs pandoc shellcheck \
-        shfmt pipx tree-sitter clang-format \
-        bash-language-server python3-pip automake \
-        libpng-devel make poppler-devel cmake uv \
-        poppler-glib-devel zlib-devel pkgconf \
-        libvterm libtool
+  sudo dnf install -y emacs pandoc shellcheck \
+    shfmt pipx tree-sitter clang-format \
+    bash-language-server python3-pip automake \
+    libpng-devel make poppler-devel cmake uv \
+    poppler-glib-devel zlib-devel pkgconf \
+    libvterm libtool
 
-    manual_package_install "dasel" \
-        "https://github.com/TomWright/dasel/releases/latest/download/dasel_linux_amd64"
+  manual_package_install "dasel" \
+    "https://github.com/TomWright/dasel/releases/latest/download/dasel_linux_amd64"
 
-    pipx install isort pipenv black \
-        pyflakes nose pytest ruff ty \
-        ruff-lsp
+  pipx install isort pipenv black \
+    pyflakes nose pytest ruff ty \
+    ruff-lsp
 }
 
 install-virt() {
-    info "Installing Virtualisation Tools"
+  info "Installing Virtualisation Tools"
 
-    sudo dnf install -y libvirt qemu-kvm \
-        virt-manager
+  sudo dnf install -y libvirt qemu-kvm \
+    virt-manager
 }
 
 install-vscode() {
-    info "Installing Visual Studio Code..."
+  info "Installing Visual Studio Code..."
 
-    sudo rpm --import https://packages.microsoft.com/keys/microsoft.asc &&
-        echo -e "[code]\nname=Visual Studio Code\nbaseurl=https://packages.microsoft.com/yumrepos/vscode\nenabled=1\nautorefresh=1\ntype=rpm-md\ngpgcheck=1\ngpgkey=https://packages.microsoft.com/keys/microsoft.asc" | sudo tee /etc/yum.repos.d/vscode.repo >/dev/null
+  sudo rpm --import https://packages.microsoft.com/keys/microsoft.asc &&
+    echo -e "[code]\nname=Visual Studio Code\nbaseurl=https://packages.microsoft.com/yumrepos/vscode\nenabled=1\nautorefresh=1\ntype=rpm-md\ngpgcheck=1\ngpgkey=https://packages.microsoft.com/keys/microsoft.asc" | sudo tee /etc/yum.repos.d/vscode.repo >/dev/null
 
-    sudo dnf install -y \
-        code
+  sudo dnf install -y \
+    code
 }
 
 for command in "$@"; do
-    case $1 in
+  case $1 in
 
-    init)
-        # remove-packages
-        init
-        ;;
+  init)
+    # remove-packages
+    init
+    ;;
 
-    all)
-        init
-        install-fonts
-        remove-packages
-        install-packages
-        install-dev
-        install-codecs
-        install-docker
-        install-vscode
-        install-keyd
-        install-doom
-        ;;
+  all)
+    init
+    install-fonts
+    remove-packages
+    install-packages
+    install-dev
+    install-codecs
+    install-docker
+    install-vscode
+    install-keyd
+    install-doom
+    ;;
 
-    virt)
-        install-virt
-        ;;
+  virt)
+    install-virt
+    ;;
 
-    keyd)
-        install-keyd
-        ;;
+  keyd)
+    install-keyd
+    ;;
 
-    fonts)
-        install-fonts
-        ;;
+  fonts)
+    install-fonts
+    ;;
 
-    code)
-        install-vscode
-        ;;
+  code)
+    install-vscode
+    ;;
 
-    dev)
-        install-dev
-        ;;
+  dev)
+    install-dev
+    ;;
 
-    docker)
-        install-docker
-        ;;
+  docker)
+    install-docker
+    ;;
 
-    doom)
-        install-doom
-        ;;
+  doom)
+    install-doom
+    ;;
 
-    emacs)
-        install-emacs
-        ;;
+  emacs)
+    install-emacs
+    ;;
 
-    *)
-        warn "Invalid input..."
-        info "Choose one of:
+  *)
+    warn "Invalid input..."
+    info "Choose one of:
         ${LIGHTGREEN}init${NC}: Bootstrap new Fedora Environment.
         ${LIGHTGREEN}init-repos${NC}: Bootstrap useful repos.
         ${LIGHTGREEN}rm-packages${NC}: Remove packages I don't like.
@@ -368,9 +368,9 @@ for command in "$@"; do
         ${LIGHTGREEN}code${NC}: Install Visual Studio Code.
         ${LIGHTGREEN}docker${NC}: Bootstrap Docker Installation.
         "
-        ;;
+    ;;
 
-    esac
+  esac
 done
 
 info "Bootstrap complete!"
