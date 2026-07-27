@@ -277,7 +277,8 @@ install-emacs() {
     bash-language-server python3-pip automake \
     libpng-devel make poppler-devel cmake uv \
     poppler-glib-devel zlib-devel pkgconf \
-    libvterm libtool
+    libvterm libtool pdflatex texlive-wrapfig \
+    texlive texlive-capt-of mupdf
 
   manual_package_install "dasel" \
     "https://github.com/TomWright/dasel/releases/latest/download/dasel_linux_amd64"
@@ -360,14 +361,14 @@ for command in "$@"; do
   *)
     warn "Invalid input..."
     info "Choose one of:
-        ${LIGHTGREEN}init${NC}: Bootstrap new Fedora Environment.
-        ${LIGHTGREEN}init-repos${NC}: Bootstrap useful repos.
-        ${LIGHTGREEN}rm-packages${NC}: Remove packages I don't like.
-        ${LIGHTGREEN}codecs${NC}: Bootstrap codecs.
-        ${LIGHTGREEN}dev${NC}: Bootstrap Development Tools.
-        ${LIGHTGREEN}code${NC}: Install Visual Studio Code.
-        ${LIGHTGREEN}docker${NC}: Bootstrap Docker Installation.
-        "
+	${LIGHTGREEN}init${NC}: Bootstrap new Fedora Environment.
+	${LIGHTGREEN}init-repos${NC}: Bootstrap useful repos.
+	${LIGHTGREEN}rm-packages${NC}: Remove packages I don't like.
+	${LIGHTGREEN}codecs${NC}: Bootstrap codecs.
+	${LIGHTGREEN}dev${NC}: Bootstrap Development Tools.
+	${LIGHTGREEN}code${NC}: Install Visual Studio Code.
+	${LIGHTGREEN}docker${NC}: Bootstrap Docker Installation.
+	"
     ;;
 
   esac
