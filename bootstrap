@@ -141,6 +141,9 @@ install-fonts() {
   install_single_font "Symbols Nerd Font" \
     "https://github.com/ryanoasis/nerd-fonts/releases/latest/download/NerdFontsSymbolsOnly.zip"
 
+  install_single_font "FiraCode" \
+    "https://github.com/tonsky/FiraCode/releases/latest/download/FiraCode.zip"
+
   fc-cache -vf ~/.local/share/fonts/
 
   # fc-list : family style | grep -i "Maple Mono"
@@ -267,6 +270,14 @@ install-doom() {
   else
     warn "Doom Emacs already installed, skipping."
   fi
+}
+
+install-emacs-build() {
+  info "Installing Emacs Build Sustems."
+
+  sudo dnf install libgccjit-devel gnutls-devel \
+    libtree-sitter-devel
+
 }
 
 install-emacs() {
