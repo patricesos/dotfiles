@@ -100,3 +100,6 @@ export OLLAMA_MODELS=~/.ollama/models
 
 eval "$(starship init bash)"
 eval "$(zoxide init bash)"
+
+#opencode
+export PATH=~/.opencode/bin:PATH

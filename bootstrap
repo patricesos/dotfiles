@@ -319,59 +319,59 @@ install-vscode() {
 for command in "$@"; do
   case $1 in
 
-  init)
-    # remove-packages
-    init
-    ;;
+    init)
+      # remove-packages
+      init
+      ;;
 
-  all)
-    init
-    install-fonts
-    remove-packages
-    install-packages
-    install-dev
-    install-codecs
-    install-docker
-    install-vscode
-    install-keyd
-    install-doom
-    ;;
+    all)
+      init
+      install-fonts
+      remove-packages
+      install-packages
+      install-dev
+      install-codecs
+      install-docker
+      install-vscode
+      install-keyd
+      install-doom
+      ;;
 
-  virt)
-    install-virt
-    ;;
+    virt)
+      install-virt
+      ;;
 
-  keyd)
-    install-keyd
-    ;;
+    keyd)
+      install-keyd
+      ;;
 
-  fonts)
-    install-fonts
-    ;;
+    fonts)
+      install-fonts
+      ;;
 
-  code)
-    install-vscode
-    ;;
+    code)
+      install-vscode
+      ;;
 
-  dev)
-    install-dev
-    ;;
+    dev)
+      install-dev
+      ;;
 
-  docker)
-    install-docker
-    ;;
+    docker)
+      install-docker
+      ;;
 
-  doom)
-    install-doom
-    ;;
+    doom)
+      install-doom
+      ;;
 
-  emacs)
-    install-emacs
-    ;;
+    emacs)
+      install-emacs
+      ;;
 
-  *)
-    warn "Invalid input..."
-    info "Choose one of:
+    *)
+      warn "Invalid input..."
+      info "Choose one of:
 	${LIGHTGREEN}init${NC}: Bootstrap new Fedora Environment.
 	${LIGHTGREEN}init-repos${NC}: Bootstrap useful repos.
 	${LIGHTGREEN}rm-packages${NC}: Remove packages I don't like.
@@ -380,7 +380,7 @@ for command in "$@"; do
 	${LIGHTGREEN}code${NC}: Install Visual Studio Code.
 	${LIGHTGREEN}docker${NC}: Bootstrap Docker Installation.
 	"
-    ;;
+      ;;
 
   esac
 done
